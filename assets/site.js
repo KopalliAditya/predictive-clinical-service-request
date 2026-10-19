@@ -1,4 +1,4 @@
-// Shared chrome for the Patient Access Scoring help site.
+// Shared chrome for the Predictive Analytics for Clinical Service Requests help site.
 // Each page sets <body data-page="..."> and this injects the header + left nav.
 
 const NAV = [
@@ -17,7 +17,12 @@ const NAV = [
 ];
 
 const CLOUD_SVG = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <path d="M18.5 10.2a4.3 4.3 0 00-8.1-1.4 3.4 3.4 0 00-4.8 3.1c0 .1 0 .3.02.4A3.2 3.2 0 006 18.8h12a3.6 3.6 0 00.5-7.2z" fill="#fff" opacity="0.95"/>
+  <path d="M18.6 10.1a4.4 4.4 0 00-8.2-1.5 3.5 3.5 0 00-4.9 3.2c0 .15.01.3.03.45A3.3 3.3 0 006 18.9h12.1a3.7 3.7 0 00.5-8.8z" fill="#0176d3"/>
+</svg>`;
+
+const SEARCH_SVG = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <circle cx="10.5" cy="10.5" r="6.5" stroke="#747474" stroke-width="2"/>
+  <line x1="15.5" y1="15.5" x2="21" y2="21" stroke="#747474" stroke-width="2" stroke-linecap="round"/>
 </svg>`;
 
 function buildHeader() {
@@ -25,10 +30,10 @@ function buildHeader() {
   h.className = "site-header";
   h.innerHTML = `
     <div class="site-header-inner">
-      <span class="cloud-badge">${CLOUD_SVG} Health Cloud Help</span>
-      <span class="product">Patient Access Scoring for Clinical Service Requests</span>
+      <span class="cloud-badge">${CLOUD_SVG} <span><strong>Salesforce</strong> Help</span></span>
+      <span class="product">Health Cloud · Referral Management</span>
       <span class="spacer"></span>
-      <a class="header-link" href="index.html">Setup Guide Home</a>
+      <span class="search">${SEARCH_SVG}<input type="search" placeholder="Search Salesforce Help" aria-label="Search Salesforce Help"></span>
     </div>`;
   return h;
 }

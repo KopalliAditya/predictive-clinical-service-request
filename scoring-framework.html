@@ -3,118 +3,96 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Step 2: Install the Patient Access Scoring Template | Patient Access Scoring Setup</title>
+  <title>Step 2: Install the Predictive Analytics for Clinical Service Requests Template | Predictive Analytics for Clinical Service Requests</title>
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body data-page="scoring-framework">
   <div class="layout">
     <main class="content">
       <nav class="breadcrumb">
-        <a href="index.html">Patient Access Scoring</a><span class="sep">›</span>
+        <a href="index.html">Predictive Analytics for Clinical Service Requests</a><span class="sep">›</span>
         Step 2: Install the Scoring Template
       </nav>
 
-      <h1>Step 2 — Install the Patient Access Scoring Template</h1>
-      <p class="subtitle">Install the scoring template, choose which signals the model learns from, and confirm the training label — all from the Scoring Framework.</p>
+      <h1>Step 2 — Install the Predictive Analytics for Clinical Service Requests Template</h1>
+      <p class="subtitle">Install the scoring template and set its parameters in the Scoring Framework.</p>
 
       <h2>Open the Scoring Framework and install the template</h2>
       <div class="step"><div class="num">1</div><div class="body"><p>From Setup, go to <strong>Scoring Framework</strong>.</p></div></div>
       <div class="step"><div class="num">2</div><div class="body">
-        <p>Find and install the <strong>Patient Access Scoring</strong> template.</p>
-        <div class="callout note">
-          <span class="label">Template name</span>
-          The template's label is <strong>Patient Access Scoring</strong> (internal name <code>PatientAccessScoring</code>). Depending on your release and org, the Scoring Framework list may show it under the Referral Management grouping — it's the one described as "Predictive scoring for Clinical Service Request prioritization using Health Cloud DMOs."
-        </div>
+        <p>Find and install the <strong>Predictive Analytics for Clinical Service Requests</strong> template.</p>
       </div></div>
-      <div class="step"><div class="num">3</div><div class="body"><p>Step through the install wizard, setting the parameters below. Every parameter has a sensible default — for a standard referral-acceptance model you can accept all defaults and only set the <strong>Data Space</strong>.</p></div></div>
-
-      <div class="callout tip">
-        <span class="label">Fastest path</span>
-        Accept every default, select your Data Space, and install. The defaults are tuned for referral acceptance. Only change a parameter when you have a specific reason — the sections below tell you when.
-      </div>
-
-      <h2>How the parameters are organized</h2>
-      <p>The parameters fall into three groups:</p>
-      <ul>
-        <li><strong>Data Space</strong> — where the model reads and writes.</li>
-        <li><strong>Features</strong> — which signals the model is allowed to learn from.</li>
-        <li><strong>Filters and the Target Variable</strong> — which records to score and what outcome to predict.</li>
-      </ul>
+      <div class="step"><div class="num">3</div><div class="body"><p>Step through the install wizard and set the parameters below. Each parameter has a default value.</p></div></div>
 
       <h2>Data Space</h2>
 
       <div class="param">
-        <div class="pname">Data Space <span class="badge optional">Optional</span></div>
-        <div class="pmeta">Default: <span class="default">default</span></div>
-        <p>The Data Cloud data space the model reads its DMOs from and writes its scoring data into. Set this to the <strong>same data space you deployed the data kit into</strong> in Step 1. If you use a single default data space, leave it as <code>default</code>.</p>
+        <div class="pname">Data Space</div>
+        <div class="pmeta">Optional &nbsp;·&nbsp; Default: <span class="default">default</span></div>
+        <p>The Data Cloud data space the model reads from and writes to. Set it to the same data space you deployed the data kit into in Step 1.</p>
       </div>
 
-      <h2>Features — which signals the model learns from</h2>
-      <p>Each feature is a toggle. Turning one on tells the model it may use that signal when learning to predict acceptance. <strong>Priority and request age are always included</strong> and have no toggle.</p>
+      <h2>Features</h2>
+      <p>Each feature is a toggle that tells the model it may use that signal. Priority and request age are always included.</p>
 
       <div class="param">
-        <div class="pname">Include Clinical Service Request Type <span class="badge recommended">Default on</span></div>
-        <div class="pmeta">Default: <span class="default">true</span></div>
-        <p>Include the Clinical Service Request <em>Type</em> as a feature. Keep this on if your referrals vary by type and type influences acceptance.</p>
-      </div>
-
-      <div class="param">
-        <div class="pname">Include Has Diagnostic Summary <span class="badge recommended">Default on</span></div>
-        <div class="pmeta">Default: <span class="default">true</span></div>
-        <p>Include a flag for whether the request links to a Diagnostic Summary. This reads from the request's own lookup, so it adds signal <strong>even when you haven't mapped Diagnostic Summary data</strong>. Safe to leave on.</p>
+        <div class="pname">Include Clinical Service Request Type</div>
+        <div class="pmeta">Optional &nbsp;·&nbsp; Default: <span class="default">On</span></div>
+        <p>Include the Clinical Service Request Type as a feature to train the prediction model. Priority and request age are always included.</p>
       </div>
 
       <div class="param">
-        <div class="pname">Include Has Patient Health Condition <span class="badge recommended">Default on</span></div>
-        <div class="pmeta">Default: <span class="default">true</span></div>
-        <p>Include a flag for whether the request links to a Patient Health Condition. Also reads from the request's own lookup, so it adds signal even when Patient Health Condition data isn't mapped. Safe to leave on.</p>
+        <div class="pname">Include Has Diagnostic Summary</div>
+        <div class="pmeta">Optional &nbsp;·&nbsp; Default: <span class="default">On</span></div>
+        <p>Include a flag for whether the Clinical Service Request links to a Diagnostic Summary. Populates from the request's own lookup, so it adds signal even when Diagnostic Summary data is absent.</p>
       </div>
 
       <div class="param">
-        <div class="pname">Include Diagnostic Summary Category <span class="badge optional">Default on, data-dependent</span></div>
-        <div class="pmeta">Default: <span class="default">true</span></div>
-        <p>Include the Diagnostic Summary <em>Category</em> as a feature. <strong>Requires Diagnostic Summary data to be mapped</strong> (via the data kit's Diagnostic Summary stream). If that data is absent the feature is simply empty and has no effect — it won't break the install. Turn it off only to simplify the model when you know you'll never map that data.</p>
+        <div class="pname">Include Has Patient Health Condition</div>
+        <div class="pmeta">Optional &nbsp;·&nbsp; Default: <span class="default">On</span></div>
+        <p>Include a flag for whether the Clinical Service Request links to a Patient Health Condition. Populates from the request's own lookup, so it adds signal even when Patient Health Condition data is absent.</p>
       </div>
 
       <div class="param">
-        <div class="pname">Include Patient Health Condition Severity <span class="badge optional">Default on, data-dependent</span></div>
-        <div class="pmeta">Default: <span class="default">true</span></div>
-        <p>Include the Patient Health Condition <em>Severity</em> as a feature. <strong>Requires Patient Health Condition data to be mapped</strong>. If absent, the feature is empty and has no effect. Same guidance as above.</p>
-      </div>
-
-      <h2>Custom filters — which records to score</h2>
-      <p>All three filter parameters are optional SQL expressions applied to the Clinical Service Request source. <strong>Leave them blank to score every request.</strong> Use them only when you want to narrow the population — for example, to a single region or line of business.</p>
-
-      <div class="param">
-        <div class="pname">Custom Filter logic <span class="badge optional">Optional</span></div>
-        <div class="pmeta">Default: <span class="default">(blank)</span> &nbsp;·&nbsp; applies to <strong>both</strong> training and scoring</div>
-        <p>A single SQL filter applied to <em>both</em> the training and the scoring data transforms. Use this when you want the same population for training and scoring. Example: <code>ssot__ClinicalServiceRequestType__c = 'Specialist Referral'</code>.</p>
+        <div class="pname">Include Diagnostic Summary Category</div>
+        <div class="pmeta">Optional &nbsp;·&nbsp; Default: <span class="default">On</span></div>
+        <p>Include the Diagnostic Summary Category as a feature. Requires Diagnostic Summary data to be mapped; when absent the feature is simply empty and has no effect on the install.</p>
       </div>
 
       <div class="param">
-        <div class="pname">Custom Filter logic (Training) <span class="badge optional">Optional, advanced</span></div>
-        <div class="pmeta">Default: <span class="default">(blank)</span> &nbsp;·&nbsp; applies to <strong>training only</strong></div>
-        <p>A SQL filter applied only to the <em>training</em> data transform. Use together with the scoring filter below when you deliberately want to train on a different population than you score (for example, train on completed historical requests only).</p>
+        <div class="pname">Include Patient Health Condition Severity</div>
+        <div class="pmeta">Optional &nbsp;·&nbsp; Default: <span class="default">On</span></div>
+        <p>Include the Patient Health Condition Severity as a feature. Requires Patient Health Condition data to be mapped; when absent the feature is simply empty and has no effect on the install.</p>
+      </div>
+
+      <h2>Custom filters</h2>
+      <p>The filter parameters are optional SQL expressions applied to the Clinical Service Request source. Leave them blank to score all Clinical Service Requests.</p>
+
+      <div class="param">
+        <div class="pname">Custom Filter logic</div>
+        <div class="pmeta">Optional &nbsp;·&nbsp; Default: <span class="default">(blank)</span></div>
+        <p>SQL filter applied to the Clinical Service Request source in both the training and scoring data transforms. Leave blank to score all Clinical Service Requests.</p>
       </div>
 
       <div class="param">
-        <div class="pname">Custom Filter logic (Scoring) <span class="badge optional">Optional, advanced</span></div>
-        <div class="pmeta">Default: <span class="default">(blank)</span> &nbsp;·&nbsp; applies to <strong>scoring only</strong></div>
-        <p>A SQL filter applied only to the <em>scoring</em> data transform. Pair with the training filter above. For example, score only open requests while training on historical ones.</p>
+        <div class="pname">Custom Filter logic (Training)</div>
+        <div class="pmeta">Optional &nbsp;·&nbsp; Default: <span class="default">(blank)</span></div>
+        <p>SQL filter applied only to the training data transform. Used together with a separate scoring filter.</p>
       </div>
-
-      <div class="callout warning">
-        <span class="label">Use one filter strategy, not both</span>
-        Either set the single <strong>Custom Filter logic</strong> (same population for both), or set the separate <strong>Training</strong> and <strong>Scoring</strong> filters. Mixing a global filter with the split filters makes the effective population hard to reason about.
-      </div>
-
-      <h2 id="target">Target Variable — the outcome the model predicts</h2>
-      <p>This is the most important parameter to understand, even though you'll usually keep the default. It defines the <strong>training label</strong> — the outcome the model learns to predict.</p>
 
       <div class="param">
-        <div class="pname">Target Variable details <span class="badge optional">Optional (defaulted)</span></div>
-        <div class="pmeta">Default: referral acceptance (Binary, Maximize)</div>
-        <p>Defines the label the model learns. The <strong>condition</strong> is a SQL expression evaluated on the Clinical Service Request source; it must return the numeric outcome value. The default predicts referral acceptance. Override it only for a different Clinical Service Request use case.</p>
+        <div class="pname">Custom Filter logic (Scoring)</div>
+        <div class="pmeta">Optional &nbsp;·&nbsp; Default: <span class="default">(blank)</span></div>
+        <p>SQL filter applied only to the scoring data transform. Used together with a separate training filter.</p>
+      </div>
+
+      <h2 id="target">Target Variable</h2>
+      <p>Defines the <strong>training label</strong> — the outcome the model learns to predict.</p>
+
+      <div class="param">
+        <div class="pname">Target Variable details</div>
+        <div class="pmeta">Optional &nbsp;·&nbsp; Default: referral acceptance (Binary, Maximize)</div>
+        <p>Defines the training label the model learns to predict. The condition is a SQL expression evaluated on the Clinical Service Request source and must return the numeric outcome value. Defaults to referral acceptance; override it for other Clinical Service Request use cases.</p>
         <p>The default is made up of these sub-fields:</p>
         <table>
           <thead><tr><th>Sub-field</th><th>Default</th><th>Meaning</th></tr></thead>
@@ -142,12 +120,12 @@ END</code></pre>
       </div>
 
       <h2>Parameters you don't set</h2>
-      <p>A couple of parameters are managed by the framework and shouldn't be changed: <strong>Train and Deploy</strong> (installs and trains the model automatically) and an internal test flag used only by functional tests. Leave both at their defaults.</p>
+      <p>Two parameters are managed by the framework — leave them at their defaults: <strong>Train and Deploy</strong> (defaults to on) and an internal test flag used only by functional tests.</p>
 
       <h2>Finish and verify</h2>
-      <div class="step"><div class="num">4</div><div class="body"><p>Complete the wizard. The template installs the model definition, data transforms, and the scoring container, then begins training.</p></div></div>
+      <div class="step"><div class="num">4</div><div class="body"><p>Complete the wizard. The template installs the model definition and data transforms, then begins training.</p></div></div>
       <div class="step"><div class="num">5</div><div class="body">
-        <p>Confirm the model reaches <strong>Active</strong> status. A model that stays in <em>Activating</em> for a long time usually means the training label is all one value — see <a href="troubleshooting.html#activating">Troubleshooting</a>.</p>
+        <p>Confirm the model reaches <strong>Active</strong> status. A model that stays in <em>Activating</em> can mean the training label is all one value — see <a href="troubleshooting.html#activating">Troubleshooting</a>.</p>
       </div></div>
 
       <div class="pager">
@@ -155,7 +133,7 @@ END</code></pre>
         <a class="next" href="cfe-permissions.html"><span class="dir">Next: Step 3</span><span class="ttl">Enable the Score Writeback →</span></a>
       </div>
 
-      <footer>Community setup guide for Health Cloud Patient Access Scoring. Not an official Salesforce publication. Parameter reference based on the Patient Access Scoring template configuration.</footer>
+      <footer>Community setup guide for Predictive Analytics for Clinical Service Requests in Health Cloud. Not an official Salesforce publication. Parameter reference based on the Predictive Analytics for Clinical Service Requests template configuration.</footer>
     </main>
   </div>
   <script src="assets/site.js"></script>

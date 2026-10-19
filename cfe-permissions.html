@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Step 3: Enable the Score Writeback (Copy Field Enrichment) | Patient Access Scoring Setup</title>
+  <title>Step 3: Enable the Score Writeback (Copy Field Enrichment) | Predictive Analytics for Clinical Service Requests</title>
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body data-page="cfe-permissions">
   <div class="layout">
     <main class="content">
       <nav class="breadcrumb">
-        <a href="index.html">Patient Access Scoring</a><span class="sep">›</span>
+        <a href="index.html">Predictive Analytics for Clinical Service Requests</a><span class="sep">›</span>
         Step 3: Enable the Score Writeback
       </nav>
 
@@ -19,7 +19,7 @@
 
       <h2>Why this step exists</h2>
       <p>The model writes its score into a Data Cloud DMO (<code>ClinicalServiceRequestScoringData</code>). To make that score visible to referral coordinators, it has to come back to the CRM. <strong>Copy Field Enrichment (CFE)</strong> is the Data Cloud feature that copies a DMO field back onto a CRM object.</p>
-      <p>The writeback runs as a fixed Data Cloud integration user — not as you. That user needs specific Health Cloud permissions, and granting them is the step most setups miss. When it's missed, everything else looks healthy but <strong>the score silently never appears on the CSR</strong>.</p>
+      <p>The writeback runs as a fixed Data Cloud integration user — not as you. That user needs specific Health Cloud permissions (Part B). If they're missing, the rest of the setup looks healthy but the score never appears on the CSR.</p>
 
       <h2>Part A — Create the Copy Field Enrichment</h2>
       <div class="step"><div class="num">1</div><div class="body"><p>In Data Cloud Setup, create a new <strong>Copy Field Enrichment</strong>.</p></div></div>
@@ -30,7 +30,7 @@
         <p>Set the <strong>target</strong> object to <strong>Clinical Service Request</strong>, and map the score to the <strong>Referral Score</strong> field.</p>
         <div class="callout note">
           <span class="label">Match on the record identifier</span>
-          The enrichment matches each scoring-DMO row to its CRM Clinical Service Request by the record ID, which flows through unchanged from CRM → DMO → scoring DMO. No extra key configuration is required as long as the data kit streams from Step 1 are running.
+          Map the record identifier as the match key so each scoring row updates the right Clinical Service Request. The identifier flows from the CRM record through the DMO to the scoring DMO.
         </div>
       </div></div>
       <div class="step"><div class="num">4</div><div class="body"><p>Save and start the enrichment.</p></div></div>
@@ -79,7 +79,7 @@ WHERE EntityDefinition.QualifiedApiName = 'ClinicalServiceRequest'
   AND QualifiedApiName LIKE '%Referral%'</code></pre>
       </div></div>
       <div class="step"><div class="num">2</div><div class="body">
-        <p><strong>Confirm scores are landing.</strong> After a sync run, count CSR records with a non-null score:</p>
+        <p><strong>Confirm scores are landing.</strong> After a sync run, count CSR records with a non-null score, using the field API name returned by the query above:</p>
         <pre><code>SELECT COUNT(Id) FROM ClinicalServiceRequest WHERE ReferralScore != null</code></pre>
         <p>A non-zero, growing count means the writeback is working end to end.</p>
       </div></div>
@@ -97,7 +97,7 @@ WHERE EntityDefinition.QualifiedApiName = 'ClinicalServiceRequest'
         <a class="next" href="troubleshooting.html"><span class="dir">Next</span><span class="ttl">Troubleshooting →</span></a>
       </div>
 
-      <footer>Community setup guide for Health Cloud Patient Access Scoring. Not an official Salesforce publication.</footer>
+      <footer>Community setup guide for Predictive Analytics for Clinical Service Requests in Health Cloud. Not an official Salesforce publication.</footer>
     </main>
   </div>
   <script src="assets/site.js"></script>

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Set Up Patient Access Scoring for Clinical Service Requests | Health Cloud Help</title>
-  <meta name="description" content="End-to-end guide to set up predictive referral scoring for Clinical Service Requests in Health Cloud: install the data kit, install the scoring template, and enable score writeback.">
+  <title>Set Up Predictive Analytics for Clinical Service Requests | Health Cloud Help</title>
+  <meta name="description" content="End-to-end guide to set up predictive scoring for Clinical Service Requests in Health Cloud: install the data kit, install the scoring template, and enable score writeback.">
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body data-page="index">
@@ -13,22 +13,22 @@
       <nav class="breadcrumb">
         <a href="index.html">Health Cloud</a><span class="sep">›</span>
         <a href="index.html">Referral Management</a><span class="sep">›</span>
-        Patient Access Scoring
+        Predictive Analytics for Clinical Service Requests
       </nav>
 
       <div class="hero">
-        <h1>Set Up Patient Access Scoring for Clinical Service Requests</h1>
-        <p class="subtitle">Predict which referrals are most likely to be accepted, and write that score back onto the Clinical Service Request so referral coordinators can prioritize their queue — set up end to end in three steps.</p>
+        <h1>Set Up Predictive Analytics for Clinical Service Requests</h1>
+        <p class="subtitle">Install the data kit, install the scoring template, and enable the score writeback so a predictive score is written back to each Clinical Service Request.</p>
       </div>
 
-      <p>Patient Access Scoring uses the Data Cloud Scoring Framework to train a predictive model on your historical Clinical Service Requests (CSRs). The model produces a score for each new request, and that score is written back to the <strong>Referral Score</strong> field on the Clinical Service Request record in your CRM.</p>
+      <p>This feature uses the Data Cloud Scoring Framework to train a model on your Clinical Service Requests (CSRs). The model scores each request, and the score is written back to the <strong>Referral Score</strong> field on the Clinical Service Request in your CRM.</p>
 
       <div class="editions">
-        <h4>Available In</h4>
+        <h4>Required Editions</h4>
         <dl>
-          <dt>Salesforce Edition</dt><dd>Lightning Experience in Enterprise, Performance, and Unlimited editions with Health Cloud</dd>
-          <dt>Requires</dt><dd>Data Cloud provisioned with an active data space</dd>
-          <dt>Feature area</dt><dd>Referral Management / Agentforce Health</dd>
+          <dt>Available in:</dt><dd>Lightning Experience</dd>
+          <dt></dt><dd>Enterprise, Performance, and Unlimited editions with Health Cloud</dd>
+          <dt>Requires:</dt><dd>Data Cloud provisioned with an active data space</dd>
         </dl>
       </div>
 
@@ -66,7 +66,7 @@
         <a class="card" href="scoring-framework.html">
           <span class="step-tag">Step 2</span>
           <h3>Install the Scoring Template</h3>
-          <p>Install the <strong>Patient Access Scoring</strong> template in the Scoring Framework and choose each parameter.</p>
+          <p>Install the <strong>Predictive Analytics for Clinical Service Requests</strong> template in the Scoring Framework and choose each parameter.</p>
         </a>
         <a class="card" href="cfe-permissions.html">
           <span class="step-tag">Step 3</span>
@@ -77,16 +77,8 @@
 
       <div class="callout note">
         <span class="label">Before you start</span>
-        Review the <a href="prerequisites.html">Prerequisites</a> first. The most common setup failures come from Data Cloud not being provisioned, the CSR DMO being empty, or the integration-user permissions in Step 3 being skipped.
+        Review the <a href="prerequisites.html">Prerequisites</a> first.
       </div>
-
-      <h2>What makes this guide different from the standard doc</h2>
-      <p>The official <em>Set Up Referral Management Predictive Scoring</em> article covers the happy path in a few sentences. This guide adds the detail customers actually need to finish the setup:</p>
-      <ul>
-        <li>What each Scoring Framework <a href="scoring-framework.html">template parameter</a> does and how to set it — not just "install the template."</li>
-        <li>The exact <a href="cfe-permissions.html">integration-user permissions</a> the writeback needs, which are easy to miss and cause scores to silently never appear.</li>
-        <li>A <a href="troubleshooting.html">troubleshooting</a> section for the two failures that block most first installs: the model stuck in <em>Activating</em>, and a missing <strong>Referral Score</strong> field.</li>
-      </ul>
 
       <div class="pager">
         <span></span>
@@ -94,7 +86,7 @@
       </div>
 
       <footer>
-        Community setup guide for Health Cloud Patient Access Scoring. Not an official Salesforce publication. Based on the Referral Management Predictive Scoring feature (Health Cloud 266).
+        Community setup guide for Predictive Analytics for Clinical Service Requests in Health Cloud. Not an official Salesforce publication. Based on the Referral Management Predictive Scoring feature (Health Cloud 266).
       </footer>
     </main>
   </div>

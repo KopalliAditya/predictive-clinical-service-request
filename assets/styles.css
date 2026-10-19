@@ -1,4 +1,4 @@
-/* Patient Access Scoring — Help site
+/* Predictive Analytics for Clinical Service Requests — Help site
    Styling modeled on Salesforce Help (help.salesforce.com) using the
    Salesforce Lightning Design System color tokens and type scale. */
 
@@ -41,48 +41,75 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ---------- Top header ---------- */
+/* ---------- Top header (help.salesforce.com style) ---------- */
 .site-header {
-  background: linear-gradient(90deg, var(--sf-navy) 0%, var(--sf-blue-dark) 100%);
-  color: #fff;
+  background: #fff;
+  color: var(--sf-text);
   padding: 0;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  border-bottom: 1px solid var(--sf-border);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 }
 .site-header-inner {
-  max-width: 1280px;
+  max-width: 1440px;
   margin: 0 auto;
   padding: 0 24px;
   display: flex;
   align-items: center;
-  height: 56px;
+  height: 60px;
   gap: 16px;
 }
 .site-header .cloud-badge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-weight: 700;
-  font-size: 15px;
-  letter-spacing: 0.2px;
+  gap: 10px;
+  font-weight: 400;
+  font-size: 18px;
+  color: var(--sf-text);
+  letter-spacing: 0;
 }
-.site-header .cloud-badge svg { width: 28px; height: 28px; }
+.site-header .cloud-badge strong { font-weight: 700; }
+.site-header .cloud-badge svg { width: 34px; height: 34px; }
 .site-header .product {
   font-size: 13px;
-  color: #c9e3fb;
-  border-left: 1px solid rgba(255,255,255,0.3);
+  color: var(--sf-text-weak);
+  border-left: 1px solid var(--sf-border);
   padding-left: 16px;
 }
 .site-header .spacer { flex: 1; }
+.site-header .search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--sf-border-strong);
+  border-radius: 999px;
+  padding: 7px 16px;
+  width: 300px;
+  color: var(--sf-text-weakest);
+  font-size: 13px;
+  background: #fff;
+}
+.site-header .search svg { width: 15px; height: 15px; flex: 0 0 15px; }
+.site-header .search input {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 13px;
+  font-family: var(--font);
+  color: var(--sf-text);
+  background: transparent;
+}
 .site-header .header-link {
-  color: #fff;
+  color: var(--sf-blue);
   text-decoration: none;
   font-size: 13px;
-  opacity: 0.9;
 }
-.site-header .header-link:hover { opacity: 1; text-decoration: underline; }
+.site-header .header-link:hover { text-decoration: underline; }
+@media (max-width: 760px) {
+  .site-header .product, .site-header .search { display: none; }
+}
 
 /* ---------- Layout ---------- */
 .layout {
@@ -354,13 +381,9 @@ td code { white-space: nowrap; }
 .pager .dir { display: block; font-size: 12px; color: var(--sf-text-weakest); }
 .pager .ttl { display: block; font-weight: 600; color: var(--sf-blue); }
 
-/* Overview hero + cards */
+/* Overview intro + cards */
 .hero {
-  background: linear-gradient(120deg, #eef6fe 0%, #f3f8ff 100%);
-  border: 1px solid #d6e9fb;
-  border-radius: 8px;
-  padding: 28px 32px;
-  margin-bottom: 28px;
+  margin-bottom: 8px;
 }
 .hero h1 { margin-top: 0; }
 .cards {

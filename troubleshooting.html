@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Troubleshooting | Patient Access Scoring Setup</title>
+  <title>Troubleshooting | Predictive Analytics for Clinical Service Requests</title>
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body data-page="troubleshooting">
   <div class="layout">
     <main class="content">
       <nav class="breadcrumb">
-        <a href="index.html">Patient Access Scoring</a><span class="sep">›</span>
+        <a href="index.html">Predictive Analytics for Clinical Service Requests</a><span class="sep">›</span>
         Troubleshooting
       </nav>
 
       <h1>Troubleshooting</h1>
-      <p class="subtitle">The failures that block most first installs, and how to resolve them.</p>
+      <p class="subtitle">Common setup failures and how to resolve them.</p>
 
       <h2 id="activating">Model stuck in "Activating"</h2>
       <p><strong>Symptom:</strong> After Step 2, the model definition version sits in <em>Activating</em> and never reaches <em>Active</em>.</p>
-      <p><strong>Most common cause:</strong> the training label is all one value. The default Target Variable condition compares <code>ssot__IsAccepted__c = true</code>. If the data kit mapped acceptance into the DMO as <strong>text</strong> ("true"/"false") instead of a <strong>boolean</strong>, that comparison never matches, every row gets label <code>0</code>, and the model can't learn a two-class outcome.</p>
+      <p><strong>Likely cause:</strong> the training label is all one value. The default Target Variable condition compares <code>ssot__IsAccepted__c = true</code>. If the data kit mapped acceptance into the DMO as <strong>text</strong> ("true"/"false") instead of a <strong>boolean</strong>, that comparison never matches, every row gets label <code>0</code>, and the model can't learn a two-class outcome.</p>
       <p><strong>How to confirm:</strong> query the accepted-row count on the DMO. If it's zero even though you know some requests were accepted, the field is text, not boolean:</p>
       <pre><code>-- via the /ssot query API
 SELECT COUNT(*) FROM ssot__ClinicalServiceRequest__dlm
@@ -50,13 +50,13 @@ WHERE EntityDefinition.QualifiedApiName = 'ClinicalServiceRequest'
 
       <h2>Scores never appear on the CSR (field exists, count stays 0)</h2>
       <p><strong>Symptom:</strong> the Referral Score field exists and the model is Active, but no CSR record ever gets a score.</p>
-      <p><strong>Cause:</strong> the writeback integration user lacks Health Cloud access, so the bulk update is silently rejected.</p>
+      <p><strong>Cause:</strong> the writeback integration user lacks Health Cloud access, so the update to the Clinical Service Request doesn't happen.</p>
       <p><strong>Fix:</strong> complete <a href="cfe-permissions.html">Step 3, Part B</a> — enable <strong>Manage Health Cloud</strong> on <code>sfdc_a360</code> and assign the <strong>Health Cloud Platform</strong> PSL to the <code>cloud@</code> integration user — then Stop/Start the sync.</p>
 
       <h2>A Scoring Framework configuration is stuck and can't be deleted</h2>
       <p><strong>Symptom:</strong> a model configuration shows only a <em>View</em> action (no Delete) while it's in <em>Activating</em>.</p>
       <p><strong>Cause:</strong> configurations can't be deleted while activating.</p>
-      <p><strong>Fix:</strong> resolve the activation first (usually the label issue above so it reaches <em>Active</em>), then delete it. If it's genuinely wedged, open a support case rather than forcing deletion.</p>
+      <p><strong>Fix:</strong> resolve the activation first (often the label issue above, so it reaches <em>Active</em>), then delete it. If it stays wedged, open a support case rather than forcing deletion.</p>
 
       <h2>Still stuck?</h2>
       <p>Work the pipeline in order — each stage depends on the one before it:</p>
@@ -78,7 +78,7 @@ WHERE EntityDefinition.QualifiedApiName = 'ClinicalServiceRequest'
         <a class="next" href="index.html"><span class="dir">Back to start</span><span class="ttl">Overview →</span></a>
       </div>
 
-      <footer>Community setup guide for Health Cloud Patient Access Scoring. Not an official Salesforce publication.</footer>
+      <footer>Community setup guide for Predictive Analytics for Clinical Service Requests in Health Cloud. Not an official Salesforce publication.</footer>
     </main>
   </div>
   <script src="assets/site.js"></script>

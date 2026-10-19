@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Step 1: Install the Health Cloud Scoring Data Kit | Patient Access Scoring Setup</title>
+  <title>Step 1: Install the Health Cloud Scoring Data Kit | Predictive Analytics for Clinical Service Requests</title>
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body data-page="data-kit">
   <div class="layout">
     <main class="content">
       <nav class="breadcrumb">
-        <a href="index.html">Patient Access Scoring</a><span class="sep">›</span>
+        <a href="index.html">Predictive Analytics for Clinical Service Requests</a><span class="sep">›</span>
         Step 1: Install the Data Kit
       </nav>
 
@@ -18,29 +18,30 @@
       <p class="subtitle">Deploy the data kit that maps your Clinical Service Request data into the Data Cloud model objects the scoring model reads.</p>
 
       <h2>Why you need this</h2>
-      <p>The scoring model doesn't read your CRM directly — it reads <strong>Data Model Objects (DMOs)</strong> in Data Cloud. The data kit is what connects the two. It defines the data streams that pull <code>ClinicalServiceRequest</code> and its related objects out of the CRM and map them, field by field, into the DMOs.</p>
-      <p>Without the data kit, the DMOs the model expects are either missing or empty, and Step 2 will fail its readiness checks.</p>
+      <p>The scoring model doesn't read your CRM directly — it reads <strong>Data Model Objects (DMOs)</strong> in Data Cloud. The data kit defines the data streams that bring <code>ClinicalServiceRequest</code> and its related objects from the CRM into those DMOs.</p>
+      <p>Without the data kit, the DMOs the model expects are missing or empty, and Step 2 fails its readiness checks.</p>
 
       <div class="callout note">
         <span class="label">About the "CSRScore" stream bundle</span>
-        Inside the <strong>Health Cloud Scoring</strong> data kit, the bundle of data streams is named <strong>CSRScore</strong> (short for Clinical Service Request Score). You'll see this name on the Data Streams page after deployment — it's the group of streams this kit creates, not a separate thing to install.
+        Inside the <strong>Health Cloud Scoring</strong> data kit, the bundle of data streams is named <strong>CSRScore</strong>. You'll see this name on the Data Streams page after deployment — it's the group of streams this kit creates, not a separate thing to install.
       </div>
 
       <h2>What the data kit contains</h2>
       <p>The <strong>Health Cloud Scoring</strong> data kit (CSRScore bundle) creates four data streams, each mapping a source object to a DMO:</p>
       <table>
-        <thead><tr><th>Source object</th><th>Target DMO</th><th>What it provides</th></tr></thead>
+        <thead><tr><th>Source object</th><th>Target DMO</th></tr></thead>
         <tbody>
-          <tr><td>Clinical Service Request</td><td><code>ClinicalServiceRequestDmo</code></td><td>The record being scored: priority, status, status start date, and the acceptance outcome used as the training label.</td></tr>
-          <tr><td>Clinical Service Request Detail</td><td><code>ClinicalServiceRequestDetailDmo</code></td><td>Detail-level reference data linked to the request.</td></tr>
-          <tr><td>Diagnostic Summary</td><td><code>DiagnosticSummaryDmo</code></td><td>Diagnostic category — an optional model feature.</td></tr>
-          <tr><td>Health Condition</td><td><code>PatientHealthConditionDmo</code></td><td>Patient health condition severity — an optional model feature.</td></tr>
+          <tr><td>Clinical Service Request</td><td><code>ClinicalServiceRequestDmo</code></td></tr>
+          <tr><td>Clinical Service Request Detail</td><td><code>ClinicalServiceRequestDetailDmo</code></td></tr>
+          <tr><td>Diagnostic Summary</td><td><code>DiagnosticSummaryDmo</code></td></tr>
+          <tr><td>Health Condition</td><td><code>PatientHealthConditionDmo</code></td></tr>
         </tbody>
       </table>
+      <p>Diagnostic Summary and Health Condition supply the optional model features (Diagnostic Summary Category and Patient Health Condition Severity). If you don't map that data, those features are simply empty — see <a href="scoring-framework.html">Step 2</a>.</p>
 
-      <div class="callout tip">
+      <div class="callout note">
         <span class="label">The acceptance field is mapped for you</span>
-        The CSR stream includes a formula field that converts the request's <code>IsAccepted</code> value into the boolean <code>IsAccepted</code> field on the DMO. This matters because the training label reads that boolean. If acceptance looks unmapped after deploy, see <a href="troubleshooting.html#activating">Troubleshooting: model stuck in Activating</a>.
+        The Clinical Service Request stream includes a formula field that converts the request's <code>IsAccepted</code> value into the <code>IsAccepted</code> field on the DMO. The default training label reads that field. If acceptance looks unmapped after deploy, see <a href="troubleshooting.html#activating">Troubleshooting: model stuck in Activating</a>.
       </div>
 
       <h2>Deploy the data kit</h2>
@@ -55,21 +56,12 @@
       <p>After deployment, confirm the field mappings landed correctly:</p>
       <div class="step"><div class="num">7</div><div class="body"><p>From the App Launcher, open <strong>Data Streams</strong>.</p></div></div>
       <div class="step"><div class="num">8</div><div class="body">
-        <p>Open each stream from the CSRScore bundle and confirm these mappings exist:</p>
-        <table>
-          <thead><tr><th>Data stream</th><th>Fields mapped to the DMO</th></tr></thead>
-          <tbody>
-            <tr><td>Clinical Service Request</td><td>Priority, Status, Status Start Date, and Accepted (IsAccepted)</td></tr>
-            <tr><td>Clinical Service Request Detail</td><td>Detail record reference</td></tr>
-            <tr><td>Diagnostic Summary</td><td>Diagnostic Category</td></tr>
-            <tr><td>Patient Health Condition</td><td>Severity</td></tr>
-          </tbody>
-        </table>
+        <p>Confirm each of the four streams is mapped to its DMO. On the Clinical Service Request stream, confirm the fields the model relies on are mapped: <strong>Priority</strong>, <strong>Status Start Date</strong>, and <strong>Accepted</strong> (<code>IsAccepted</code>).</p>
       </div></div>
 
       <div class="callout warning">
         <span class="label">Confirm data is flowing before Step 2</span>
-        Mapping the streams isn't enough — the DMOs must actually contain rows. After the streams run, confirm the <code>ClinicalServiceRequest</code> DMO has at least 400 records (see <a href="prerequisites.html">Prerequisites</a>). An empty DMO is the number-one reason Step 2's readiness check fails.
+        Mapping the streams isn't enough — the DMOs must contain rows. After the streams run, confirm the <code>ClinicalServiceRequest</code> DMO has at least 400 records (see <a href="prerequisites.html">Prerequisites</a>). An empty DMO fails Step 2's readiness check.
       </div>
 
       <div class="pager">
@@ -77,7 +69,7 @@
         <a class="next" href="scoring-framework.html"><span class="dir">Next: Step 2</span><span class="ttl">Install the Scoring Template →</span></a>
       </div>
 
-      <footer>Community setup guide for Health Cloud Patient Access Scoring. Not an official Salesforce publication.</footer>
+      <footer>Community setup guide for Predictive Analytics for Clinical Service Requests in Health Cloud. Not an official Salesforce publication.</footer>
     </main>
   </div>
   <script src="assets/site.js"></script>

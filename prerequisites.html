@@ -3,43 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Prerequisites | Patient Access Scoring Setup</title>
+  <title>Prerequisites | Predictive Analytics for Clinical Service Requests</title>
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body data-page="prerequisites">
   <div class="layout">
     <main class="content">
       <nav class="breadcrumb">
-        <a href="index.html">Patient Access Scoring</a><span class="sep">›</span>
+        <a href="index.html">Predictive Analytics for Clinical Service Requests</a><span class="sep">›</span>
         Prerequisites
       </nav>
 
       <h1>Prerequisites</h1>
-      <p class="subtitle">Confirm these are in place before you begin. Most setup failures trace back to a missing item here.</p>
+      <p class="subtitle">Confirm these are in place before you begin.</p>
 
       <h2>Org and licensing</h2>
       <ul>
         <li><strong>Health Cloud</strong> enabled (Enterprise, Performance, or Unlimited edition, Lightning Experience).</li>
-        <li><strong>Data Cloud</strong> provisioned, with at least one active <strong>data space</strong>. You'll select this data space in Steps 1 and 2.</li>
-        <li><strong>Referral Management</strong> set up, so that Clinical Service Request records exist in your CRM.</li>
+        <li><strong>Data Cloud</strong> provisioned, with at least one active <strong>data space</strong>. You select this data space in Steps 1 and 2.</li>
+        <li><strong>Clinical Service Request</strong> records exist in your CRM. The model trains on these records (see Data readiness below).</li>
       </ul>
 
       <h2>Data readiness</h2>
-      <p>The scoring template runs readiness checks at install time. Make sure your CSR data meets them, or the install will warn (and training can fail):</p>
+      <p>The scoring template runs readiness checks when you install it. Meet these so the checks pass:</p>
       <table>
-        <thead><tr><th>Requirement</th><th>Why</th></tr></thead>
+        <thead><tr><th>Requirement</th><th>Detail</th></tr></thead>
         <tbody>
           <tr>
-            <td>The <code>ClinicalServiceRequest</code> DMO is mapped and populated</td>
-            <td>The model reads from the CSR DMO. The readiness check requires <code>Id</code>, <code>ClinicalServiceRequestPriority</code>, and <code>ClinicalServiceRequestStartDate</code> to be present.</td>
+            <td>The <code>ClinicalServiceRequest</code> DMO is mapped</td>
+            <td>The readiness check requires <code>Id</code>, <code>ClinicalServiceRequestPriority</code>, and <code>ClinicalServiceRequestStartDate</code> to be present.</td>
           </tr>
           <tr>
             <td>At least <strong>400</strong> Clinical Service Request records</td>
-            <td>The model needs enough rows to train. Fewer than 400 rows fails the readiness requirement.</td>
+            <td>Fewer than 400 records fails the readiness check.</td>
           </tr>
           <tr>
             <td>A <strong>mix</strong> of accepted and not-accepted requests</td>
-            <td>The model learns to predict acceptance, so it needs both outcomes. If every request has the same outcome, training produces a single-class model. The install surfaces a warning but does not block.</td>
+            <td>The model predicts acceptance and needs both outcomes to train. If all requests have the same outcome, training can produce a single-class model. This check warns but does not block install.</td>
           </tr>
         </tbody>
       </table>
@@ -58,19 +58,14 @@
           <tr><td>Install and manage Scoring Framework templates</td><td><strong>Customize Application</strong> + <strong>Modify All Data</strong> + <strong>Scoring Framework Admin</strong></td></tr>
         </tbody>
       </table>
-      <p>A separate set of permissions is needed by the <em>integration user</em> that performs the score writeback. Those are covered in <a href="cfe-permissions.html">Step 3</a> — they are the most commonly missed part of the whole setup.</p>
-
-      <div class="callout tip">
-        <span class="label">Quickest path to a clean install</span>
-        Run the setup as a System Administrator who also holds the <strong>Health Cloud Platform</strong> permission set license. This avoids both the Scoring Framework permission gaps and the writeback-user gap described in Step 3.
-      </div>
+      <p>The <em>integration user</em> that performs the score writeback needs its own permissions. Those are covered in <a href="cfe-permissions.html">Step 3</a>.</p>
 
       <div class="pager">
         <a class="prev" href="index.html"><span class="dir">Previous</span><span class="ttl">← Overview</span></a>
         <a class="next" href="data-kit.html"><span class="dir">Next: Step 1</span><span class="ttl">Install the Data Kit →</span></a>
       </div>
 
-      <footer>Community setup guide for Health Cloud Patient Access Scoring. Not an official Salesforce publication.</footer>
+      <footer>Community setup guide for Predictive Analytics for Clinical Service Requests in Health Cloud. Not an official Salesforce publication.</footer>
     </main>
   </div>
   <script src="assets/site.js"></script>
