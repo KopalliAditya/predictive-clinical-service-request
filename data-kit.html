@@ -47,7 +47,9 @@
       <h2>Deploy the data kit</h2>
       <div class="step"><div class="num">1</div><div class="body"><p>From Setup, go to <strong>Data Cloud Setup</strong> and select <strong>Data Kits</strong>.</p></div></div>
       <div class="step"><div class="num">2</div><div class="body"><p>Select <strong>Health Cloud Scoring</strong>.</p></div></div>
+      <figure class="shot" data-caption="Data Cloud Setup → Data Kits, with the Health Cloud Scoring data kit selected." data-src="images/data-kits-list.png"></figure>
       <div class="step"><div class="num">3</div><div class="body"><p>Review the contents, then click <strong>Data Kit Deploy</strong>.</p></div></div>
+      <figure class="shot" data-caption="The Data Kit Deploy dialog: select the data space and enter your org ID." data-src="images/data-kit-deploy.png"></figure>
       <div class="step"><div class="num">4</div><div class="body"><p>Select the <strong>data space</strong> you want to deploy into, and enter your <strong>org ID</strong>.</p></div></div>
       <div class="step"><div class="num">5</div><div class="body"><p>Click <strong>Deploy</strong>.</p></div></div>
       <div class="step"><div class="num">6</div><div class="body"><p>Wait for the deployment to finish. Track its progress on the <strong>Deployment History</strong> tab.</p></div></div>
@@ -55,8 +57,45 @@
       <h2>Verify the DMO field mappings</h2>
       <p>After deployment, confirm the field mappings landed correctly:</p>
       <div class="step"><div class="num">7</div><div class="body"><p>From the App Launcher, open <strong>Data Streams</strong>.</p></div></div>
+      <figure class="shot" data-caption="A data stream's field-mapping view, showing source fields mapped to the Clinical Service Request DMO." data-src="images/data-stream-mappings.png"></figure>
       <div class="step"><div class="num">8</div><div class="body">
-        <p>Confirm each of the four streams is mapped to its DMO. On the Clinical Service Request stream, confirm the fields the model relies on are mapped: <strong>Priority</strong>, <strong>Status Start Date</strong>, and <strong>Accepted</strong> (<code>IsAccepted</code>).</p>
+        <p>Confirm each stream is mapped to its DMO, then check that the fields the model's data transforms read are mapped. These are the exact fields to look for:</p>
+
+        <h3>Clinical Service Request DMO (<code>ssot__ClinicalServiceRequest__dlm</code>)</h3>
+        <table>
+          <thead><tr><th>Field</th><th>API name</th><th>Used for</th></tr></thead>
+          <tbody>
+            <tr><td>Id</td><td><code>ssot__Id__c</code></td><td>Record identifier — readiness check and the writeback match key</td></tr>
+            <tr><td>Clinical Service Request Priority</td><td><code>ssot__ClinicalServiceRequestPriority__c</code></td><td>Feature (always included); readiness check</td></tr>
+            <tr><td>Clinical Service Request Start Date</td><td><code>ssot__ClinicalServiceRequestStartDate__c</code></td><td>Request age feature (always included); readiness check</td></tr>
+            <tr><td>Clinical Service Request Status</td><td><code>ssot__ClinicalServiceRequestStatus__c</code></td><td>Training label (the Active/Completed fallback)</td></tr>
+            <tr><td>Clinical Service Request Type</td><td><code>ssot__ClinicalServiceRequestType__c</code></td><td>"Include Clinical Service Request Type" feature</td></tr>
+            <tr><td>Accepted</td><td><code>ssot__IsAccepted__c</code></td><td>Training label (boolean) — see the note below</td></tr>
+            <tr><td>Diagnostic Summary Id</td><td><code>ssot__DiagnosticSummaryId__c</code></td><td>"Include Has Diagnostic Summary" feature (the request's lookup)</td></tr>
+            <tr><td>Patient Health Condition Id</td><td><code>ssot__PatientHealthConditionId__c</code></td><td>"Include Has Patient Health Condition" feature (the request's lookup)</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Diagnostic Summary DMO (<code>ssot__DiagnosticSummary__dlm</code>) — optional</h3>
+        <table>
+          <thead><tr><th>Field</th><th>API name</th><th>Used for</th></tr></thead>
+          <tbody>
+            <tr><td>Diagnostic Summary Category</td><td><code>ssot__DiagnosticSummaryCategory__c</code></td><td>"Include Diagnostic Summary Category" feature</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Patient Health Condition DMO (<code>ssot__PatientHealthCondition__dlm</code>) — optional</h3>
+        <table>
+          <thead><tr><th>Field</th><th>API name</th><th>Used for</th></tr></thead>
+          <tbody>
+            <tr><td>Health Condition Severity</td><td><code>ssot__HealthConditionSeverity__c</code></td><td>"Include Patient Health Condition Severity" feature</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout note">
+          <span class="label">Which mappings are required</span>
+          The Clinical Service Request DMO fields are required — the model's data transforms read them directly. The Diagnostic Summary and Patient Health Condition DMO fields back the optional features; if you don't map them, those features are empty and the install still succeeds. The Clinical Service Request Detail stream is deployed by the kit but isn't read by the scoring model, so it has no fields to verify here.
+        </div>
       </div></div>
 
       <div class="callout warning">

@@ -434,6 +434,39 @@ td code { white-space: nowrap; }
 .flow .node.model { border-color: #fcd9b6; background: var(--sf-orange-bg); }
 .flow .arrow { color: var(--sf-text-weakest); font-size: 18px; }
 
+/* Figures / screenshots */
+figure.shot {
+  margin: 20px 0;
+  border: 1px solid var(--sf-border);
+  border-radius: var(--sf-radius);
+  overflow: hidden;
+  background: #fff;
+}
+figure.shot img { display: block; width: 100%; height: auto; }
+figure.shot .placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 180px;
+  background: repeating-linear-gradient(45deg, #f7f9fb, #f7f9fb 12px, #f1f4f8 12px, #f1f4f8 24px);
+  color: var(--sf-text-weakest);
+  font-size: 13px;
+  text-align: center;
+  padding: 24px;
+  border-bottom: 1px solid var(--sf-border);
+}
+figure.shot .placeholder .ico {
+  width: 32px; height: 32px; opacity: 0.5;
+}
+figure.shot figcaption {
+  font-size: 12px;
+  color: var(--sf-text-weak);
+  padding: 8px 12px;
+}
+figure.shot figcaption b { color: var(--sf-text); font-weight: 600; }
+
 .content footer {
   margin-top: 56px;
   padding-top: 20px;

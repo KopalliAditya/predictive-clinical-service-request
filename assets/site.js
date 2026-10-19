@@ -55,9 +55,36 @@ function buildSidebar(active) {
   return aside;
 }
 
+const IMG_ICO = `<svg class="ico" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <rect x="3" y="4" width="18" height="16" rx="2" stroke="#747474" stroke-width="1.6"/>
+  <circle cx="8.5" cy="9" r="1.8" stroke="#747474" stroke-width="1.4"/>
+  <path d="M4 17l4.5-4.5 3 3L15 12l5 5" stroke="#747474" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+
+// Each <figure class="shot" data-src="images/x.png" data-caption="..."> shows the
+// image when it loads, otherwise a labeled placeholder with the same caption.
+function buildFigures() {
+  document.querySelectorAll("figure.shot").forEach((fig) => {
+    const src = fig.dataset.src;
+    const caption = fig.dataset.caption || "";
+    const placeholder = `<div class="placeholder">${IMG_ICO}<span>Screenshot: ${caption}</span></div>`;
+    const figcap = caption ? `<figcaption><b>Figure.</b> ${caption}</figcaption>` : "";
+    if (src) {
+      const img = new Image();
+      img.alt = caption;
+      img.onload = () => { fig.innerHTML = `<img src="${src}" alt="${caption}">` + figcap; };
+      img.onerror = () => { fig.innerHTML = placeholder + figcap; };
+      img.src = src;
+    } else {
+      fig.innerHTML = placeholder + figcap;
+    }
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const active = document.body.dataset.page || "index";
   document.body.prepend(buildHeader());
   const layout = document.querySelector(".layout");
   if (layout) layout.prepend(buildSidebar(active));
+  buildFigures();
 });

@@ -15,32 +15,83 @@
       </nav>
 
       <h1>Troubleshooting</h1>
-      <p class="subtitle">Common setup failures and how to resolve them.</p>
+      <p class="subtitle">Find the installation phase that failed, then apply the matching fix.</p>
 
-      <h2 id="activating">Model stuck in "Activating"</h2>
-      <p><strong>Symptom:</strong> After Step 2, the model definition version sits in <em>Activating</em> and never reaches <em>Active</em>.</p>
-      <p><strong>Likely cause:</strong> the training label is all one value. The default Target Variable condition compares <code>ssot__IsAccepted__c = true</code>. If the data kit mapped acceptance into the DMO as <strong>text</strong> ("true"/"false") instead of a <strong>boolean</strong>, that comparison never matches, every row gets label <code>0</code>, and the model can't learn a two-class outcome.</p>
-      <p><strong>How to confirm:</strong> query the accepted-row count on the DMO. If it's zero even though you know some requests were accepted, the field is text, not boolean:</p>
+      <h2>The installation phases</h2>
+      <p>When you install the template, it runs as a chain of phases in this order. Each phase depends on the one before it, so identify the phase that failed first — the fix depends on which one it is.</p>
+      <table>
+        <thead><tr><th>#</th><th>Phase</th><th>What it does</th><th>What it produces</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Readiness checks</td><td>Validates the Clinical Service Request DMO is mapped and has enough rows</td><td>Pass / warning messages</td></tr>
+          <tr><td>2</td><td>Training data transform (BDT)</td><td>Creates and runs the training transform, which computes the features and the training label</td><td><code>ClinicalServiceRequestTrainingData</code> DMO</td></tr>
+          <tr><td>3</td><td>Model container &amp; setup</td><td>Creates the ML container and setup for the model</td><td>Model setup</td></tr>
+          <tr><td>4</td><td>Model training</td><td>Trains the model on the training data</td><td>A trained model version</td></tr>
+          <tr><td>5</td><td>Model activation</td><td>Activates the trained model version (gated on Train and Deploy)</td><td>Model status <em>Active</em></td></tr>
+          <tr><td>6</td><td>Scoring data transform (BDT)</td><td>Creates and runs the scoring transform, which writes the predicted scores</td><td><code>ClinicalServiceRequestScoringData</code> DMO</td></tr>
+          <tr><td>7</td><td>Writeback (Step 3, Copy Field Enrichment)</td><td>Copies the score from the scoring DMO to the CRM</td><td><strong>Referral Score</strong> on the Clinical Service Request</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="phase1">Phase 1 — Readiness check fails</h2>
+      <p><strong>Symptom:</strong> the install shows a readiness failure or warning before it creates anything.</p>
+      <table>
+        <thead><tr><th>Message</th><th>Cause &amp; fix</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Clinical Service Request DMO is not mapped</td>
+            <td>The data kit wasn't deployed, or its streams haven't run, so the DMO is missing <code>Id</code>, <code>ClinicalServiceRequestPriority</code>, or <code>ClinicalServiceRequestStartDate</code>. Complete <a href="data-kit.html">Step 1</a> and confirm the DMO is mapped.</td>
+          </tr>
+          <tr>
+            <td>Not enough records</td>
+            <td>The Clinical Service Request DMO has fewer than 400 rows. Confirm the streams ran and the DMO is populated.</td>
+          </tr>
+          <tr>
+            <td>Needs both accepted and not-accepted requests (warning)</td>
+            <td>Every request has the same outcome, so the model can't learn to distinguish them. This warns but does not block install. Populate <code>IsAccepted</code>, or let requests move through <em>Active</em>/<em>Completed</em> statuses, so the data has a mix of outcomes.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="phase2">Phase 2 — Training data transform (BDT) fails</h2>
+      <p><strong>Symptom:</strong> the install fails at the data transform step, or the <code>ClinicalServiceRequestTrainingData</code> DMO is empty after install.</p>
+      <p><strong>Cause:</strong> the training transform reads specific fields from the Clinical Service Request, Diagnostic Summary, and Patient Health Condition DMOs. If one of those fields isn't mapped, the transform can error or produce empty output.</p>
+      <p><strong>Fix:</strong> confirm every field the transform reads is mapped — the full list is in <a href="data-kit.html">Step 1, Verify the DMO field mappings</a>. The required fields are on the Clinical Service Request DMO:</p>
+      <ul>
+        <li><code>ssot__Id__c</code>, <code>ssot__ClinicalServiceRequestPriority__c</code>, <code>ssot__ClinicalServiceRequestStartDate__c</code></li>
+        <li><code>ssot__ClinicalServiceRequestStatus__c</code>, <code>ssot__ClinicalServiceRequestType__c</code>, <code>ssot__IsAccepted__c</code></li>
+        <li><code>ssot__DiagnosticSummaryId__c</code>, <code>ssot__PatientHealthConditionId__c</code></li>
+      </ul>
+      <p>The Diagnostic Summary Category and Patient Health Condition Severity fields are optional — if they're unmapped the transform still runs, and those features are just empty.</p>
+
+      <h2 id="mapping">Phase 2/5 — Field mapping is wrong (the <code>IsAccepted</code> type trap)</h2>
+      <p><strong>Symptom:</strong> the transform runs without error, but the training label comes out all one value — which later shows up as a model stuck in <em>Activating</em> (see below).</p>
+      <p><strong>Cause:</strong> the training label compares <code>ssot__IsAccepted__c = true</code>. If acceptance is mapped into the DMO as <strong>text</strong> ("true"/"false") instead of a <strong>boolean</strong>, the comparison never matches and every row gets label <code>0</code>.</p>
+      <p><strong>How to confirm:</strong> count the accepted rows on the DMO. A zero count when you know some requests were accepted means the field is text, not boolean:</p>
       <pre><code>-- via the /ssot query API
 SELECT COUNT(*) FROM ssot__ClinicalServiceRequest__dlm
 WHERE ssot__IsAccepted__c = true</code></pre>
-      <p><strong>Fix:</strong> make sure the Clinical Service Request data stream maps acceptance into the DMO's boolean <code>IsAccepted</code> field. The <strong>Health Cloud Scoring</strong> data kit does this with a formula field that converts the raw value to a boolean. If your deployed stream doesn't have that mapping, redeploy the current data kit (Step 1), then Stop/Start the sync.</p>
+      <p><strong>Fix:</strong> the <strong>Health Cloud Scoring</strong> data kit maps acceptance to a boolean with a formula field. Confirm that mapping is present; if not, redeploy the current data kit (<a href="data-kit.html">Step 1</a>) and Stop/Start the sync.</p>
       <div class="callout note">
         <span class="label">Why text vs. boolean happens</span>
-        The Salesforce connector can ingest a CRM boolean as a text value in the DLO. The data kit's formula field (<code>IF(IsAccepted == 'true', true, false)</code>) normalizes it back to a boolean so the label condition matches. A null or unexpected value resolves to <code>false</code>, which is the correct default.
+        The Salesforce connector can ingest a CRM boolean as text in the DLO. The data kit's formula field (<code>IF(IsAccepted == 'true', true, false)</code>) normalizes it back to a boolean so the label matches. A null or unexpected value resolves to <code>false</code>.
       </div>
 
-      <h2>Readiness check fails: "Clinical Service Request DMO is not mapped"</h2>
-      <p><strong>Symptom:</strong> Step 2 install blocks with a message to map the CSR DMO.</p>
-      <p><strong>Cause:</strong> the data kit either wasn't deployed, or its streams haven't run, so the <code>ClinicalServiceRequest</code> DMO has no rows (or is missing <code>Id</code>, <code>ClinicalServiceRequestPriority</code>, or <code>ClinicalServiceRequestStartDate</code>).</p>
-      <p><strong>Fix:</strong> complete <a href="data-kit.html">Step 1</a>, confirm the streams ran, and confirm the DMO has rows before retrying Step 2.</p>
+      <h2 id="phase4">Phase 4 — Model training warns or produces a single-class model</h2>
+      <p><strong>Symptom:</strong> training completes with a warning, or the model predicts the same outcome for everything.</p>
+      <p><strong>Cause:</strong> the training label has only one class — either the mapping trap above, or the underlying data genuinely has no mix of accepted and not-accepted requests.</p>
+      <p><strong>Fix:</strong> resolve the mapping trap first, then confirm the data has both outcomes (the Phase 1 label-balance check). Retrain after fixing.</p>
 
-      <h2>Warning: "needs both accepted and not-accepted requests"</h2>
-      <p><strong>Symptom:</strong> install succeeds but warns that the label has only one class.</p>
-      <p><strong>Cause:</strong> every request in the DMO is either all-accepted or all-not-accepted, so the model can't learn to distinguish them. This does <strong>not</strong> block install.</p>
-      <p><strong>Fix:</strong> populate <code>IsAccepted</code> on your requests, or let requests progress through <em>Active</em>/<em>Completed</em> statuses, so the data contains a mix of outcomes. Then retrain.</p>
+      <h2 id="activating">Phase 5 — Model stuck in "Activating"</h2>
+      <p><strong>Symptom:</strong> the model definition version sits in <em>Activating</em> and never reaches <em>Active</em>.</p>
+      <p><strong>Likely cause:</strong> the model trained on an all-one-value label (the mapping trap in Phase 2/5), so there's no usable two-class model to activate.</p>
+      <p><strong>Fix:</strong> fix the <code>IsAccepted</code> mapping, confirm a mix of outcomes, and reinstall/retrain so the model can activate.</p>
 
-      <h2 id="no-referralscore">No "Referral Score" field on the Clinical Service Request</h2>
+      <h2 id="phase6">Phase 6 — Scoring data transform produces no scores</h2>
+      <p><strong>Symptom:</strong> the model is <em>Active</em>, but the <code>ClinicalServiceRequestScoringData</code> DMO has no rows.</p>
+      <p><strong>Cause:</strong> the scoring transform only runs when <strong>Train and Deploy</strong> is on, and it reads the same Clinical Service Request DMO fields as training. A custom scoring filter that's too narrow can also exclude every record.</p>
+      <p><strong>Fix:</strong> confirm Train and Deploy was left on (<a href="scoring-framework.html">Step 2</a>), the source DMO fields are mapped, and any <em>Custom Filter logic (Scoring)</em> isn't filtering everything out.</p>
+
+      <h2 id="no-referralscore">Phase 7 — No "Referral Score" field on the Clinical Service Request</h2>
       <p><strong>Symptom:</strong> there's nowhere for the score to land; querying for the field returns nothing.</p>
       <p><strong>Cause:</strong> the Copy Field Enrichment target mapping was never created, so the field that receives the score doesn't exist.</p>
       <p><strong>Fix:</strong> create the CFE with target <strong>Clinical Service Request</strong> mapped to the <strong>Referral Score</strong> field — see <a href="cfe-permissions.html">Step 3, Part A</a>. Verify with:</p>
@@ -48,30 +99,31 @@ WHERE ssot__IsAccepted__c = true</code></pre>
 WHERE EntityDefinition.QualifiedApiName = 'ClinicalServiceRequest'
   AND (QualifiedApiName LIKE '%Score%' OR QualifiedApiName LIKE '%Referral%')</code></pre>
 
-      <h2>Scores never appear on the CSR (field exists, count stays 0)</h2>
-      <p><strong>Symptom:</strong> the Referral Score field exists and the model is Active, but no CSR record ever gets a score.</p>
+      <h2 id="writeback-perms">Phase 7 — Scores never appear on the CSR (field exists, count stays 0)</h2>
+      <p><strong>Symptom:</strong> the Referral Score field exists and the scoring DMO has rows, but no Clinical Service Request ever gets a score.</p>
       <p><strong>Cause:</strong> the writeback integration user lacks Health Cloud access, so the update to the Clinical Service Request doesn't happen.</p>
-      <p><strong>Fix:</strong> complete <a href="cfe-permissions.html">Step 3, Part B</a> — enable <strong>Manage Health Cloud</strong> on <code>sfdc_a360</code> and assign the <strong>Health Cloud Platform</strong> PSL to the <code>cloud@</code> integration user — then Stop/Start the sync.</p>
+      <p><strong>Fix:</strong> complete <a href="cfe-permissions.html">Step 3, Part B</a> — enable <strong>Manage Health Cloud</strong> on <code>sfdc_a360</code> and assign the <strong>Health Cloud Platform</strong> permission set license to the <code>cloud@</code> integration user — then Stop/Start the sync.</p>
 
       <h2>A Scoring Framework configuration is stuck and can't be deleted</h2>
       <p><strong>Symptom:</strong> a model configuration shows only a <em>View</em> action (no Delete) while it's in <em>Activating</em>.</p>
       <p><strong>Cause:</strong> configurations can't be deleted while activating.</p>
       <p><strong>Fix:</strong> resolve the activation first (often the label issue above, so it reaches <em>Active</em>), then delete it. If it stays wedged, open a support case rather than forcing deletion.</p>
 
-      <h2>Still stuck?</h2>
-      <p>Work the pipeline in order — each stage depends on the one before it:</p>
+      <h2>Quick triage</h2>
+      <p>Walk the pipeline in order. The first stage that answers "no" is the phase to fix:</p>
       <div class="flow">
         <div class="node crm">Data in CRM?</div>
         <span class="arrow">→</span>
-        <div class="node dc">DMO has rows?</div>
+        <div class="node dc">CSR DMO mapped &amp; has rows?</div>
+        <span class="arrow">→</span>
+        <div class="node dc">Training DMO built?</div>
         <span class="arrow">→</span>
         <div class="node model">Model Active?</div>
         <span class="arrow">→</span>
-        <div class="node dc">Scoring DMO populated?</div>
+        <div class="node dc">Scoring DMO has rows?</div>
         <span class="arrow">→</span>
         <div class="node crm">Score on CSR?</div>
       </div>
-      <p>The first stage that answers "no" is where the problem is.</p>
 
       <div class="pager">
         <a class="prev" href="cfe-permissions.html"><span class="dir">Previous: Step 3</span><span class="ttl">← Enable the Score Writeback</span></a>
