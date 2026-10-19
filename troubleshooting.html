@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Troubleshooting | Patient Access Scoring Setup</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="troubleshooting">
+  <div class="layout">
+    <main class="content">
+      <nav class="breadcrumb">
+        <a href="index.html">Patient Access Scoring</a><span class="sep">›</span>
+        Troubleshooting
+      </nav>
+
+      <h1>Troubleshooting</h1>
+      <p class="subtitle">The failures that block most first installs, and how to resolve them.</p>
+
+      <h2 id="activating">Model stuck in "Activating"</h2>
+      <p><strong>Symptom:</strong> After Step 2, the model definition version sits in <em>Activating</em> and never reaches <em>Active</em>.</p>
+      <p><strong>Most common cause:</strong> the training label is all one value. The default Target Variable condition compares <code>ssot__IsAccepted__c = true</code>. If the data kit mapped acceptance into the DMO as <strong>text</strong> ("true"/"false") instead of a <strong>boolean</strong>, that comparison never matches, every row gets label <code>0</code>, and the model can't learn a two-class outcome.</p>
+      <p><strong>How to confirm:</strong> query the accepted-row count on the DMO. If it's zero even though you know some requests were accepted, the field is text, not boolean:</p>
+      <pre><code>-- via the /ssot query API
+SELECT COUNT(*) FROM ssot__ClinicalServiceRequest__dlm
+WHERE ssot__IsAccepted__c = true</code></pre>
+      <p><strong>Fix:</strong> make sure the Clinical Service Request data stream maps acceptance into the DMO's boolean <code>IsAccepted</code> field. The <strong>Health Cloud Scoring</strong> data kit does this with a formula field that converts the raw value to a boolean. If your deployed stream doesn't have that mapping, redeploy the current data kit (Step 1), then Stop/Start the sync.</p>
+      <div class="callout note">
+        <span class="label">Why text vs. boolean happens</span>
+        The Salesforce connector can ingest a CRM boolean as a text value in the DLO. The data kit's formula field (<code>IF(IsAccepted == 'true', true, false)</code>) normalizes it back to a boolean so the label condition matches. A null or unexpected value resolves to <code>false</code>, which is the correct default.
+      </div>
+
+      <h2>Readiness check fails: "Clinical Service Request DMO is not mapped"</h2>
+      <p><strong>Symptom:</strong> Step 2 install blocks with a message to map the CSR DMO.</p>
+      <p><strong>Cause:</strong> the data kit either wasn't deployed, or its streams haven't run, so the <code>ClinicalServiceRequest</code> DMO has no rows (or is missing <code>Id</code>, <code>ClinicalServiceRequestPriority</code>, or <code>ClinicalServiceRequestStartDate</code>).</p>
+      <p><strong>Fix:</strong> complete <a href="data-kit.html">Step 1</a>, confirm the streams ran, and confirm the DMO has rows before retrying Step 2.</p>
+
+      <h2>Warning: "needs both accepted and not-accepted requests"</h2>
+      <p><strong>Symptom:</strong> install succeeds but warns that the label has only one class.</p>
+      <p><strong>Cause:</strong> every request in the DMO is either all-accepted or all-not-accepted, so the model can't learn to distinguish them. This does <strong>not</strong> block install.</p>
+      <p><strong>Fix:</strong> populate <code>IsAccepted</code> on your requests, or let requests progress through <em>Active</em>/<em>Completed</em> statuses, so the data contains a mix of outcomes. Then retrain.</p>
+
+      <h2 id="no-referralscore">No "Referral Score" field on the Clinical Service Request</h2>
+      <p><strong>Symptom:</strong> there's nowhere for the score to land; querying for the field returns nothing.</p>
+      <p><strong>Cause:</strong> the Copy Field Enrichment target mapping was never created, so the field that receives the score doesn't exist.</p>
+      <p><strong>Fix:</strong> create the CFE with target <strong>Clinical Service Request</strong> mapped to the <strong>Referral Score</strong> field — see <a href="cfe-permissions.html">Step 3, Part A</a>. Verify with:</p>
+      <pre><code>SELECT QualifiedApiName FROM FieldDefinition
+WHERE EntityDefinition.QualifiedApiName = 'ClinicalServiceRequest'
+  AND (QualifiedApiName LIKE '%Score%' OR QualifiedApiName LIKE '%Referral%')</code></pre>
+
+      <h2>Scores never appear on the CSR (field exists, count stays 0)</h2>
+      <p><strong>Symptom:</strong> the Referral Score field exists and the model is Active, but no CSR record ever gets a score.</p>
+      <p><strong>Cause:</strong> the writeback integration user lacks Health Cloud access, so the bulk update is silently rejected.</p>
+      <p><strong>Fix:</strong> complete <a href="cfe-permissions.html">Step 3, Part B</a> — enable <strong>Manage Health Cloud</strong> on <code>sfdc_a360</code> and assign the <strong>Health Cloud Platform</strong> PSL to the <code>cloud@</code> integration user — then Stop/Start the sync.</p>
+
+      <h2>A Scoring Framework configuration is stuck and can't be deleted</h2>
+      <p><strong>Symptom:</strong> a model configuration shows only a <em>View</em> action (no Delete) while it's in <em>Activating</em>.</p>
+      <p><strong>Cause:</strong> configurations can't be deleted while activating.</p>
+      <p><strong>Fix:</strong> resolve the activation first (usually the label issue above so it reaches <em>Active</em>), then delete it. If it's genuinely wedged, open a support case rather than forcing deletion.</p>
+
+      <h2>Still stuck?</h2>
+      <p>Work the pipeline in order — each stage depends on the one before it:</p>
+      <div class="flow">
+        <div class="node crm">Data in CRM?</div>
+        <span class="arrow">→</span>
+        <div class="node dc">DMO has rows?</div>
+        <span class="arrow">→</span>
+        <div class="node model">Model Active?</div>
+        <span class="arrow">→</span>
+        <div class="node dc">Scoring DMO populated?</div>
+        <span class="arrow">→</span>
+        <div class="node crm">Score on CSR?</div>
+      </div>
+      <p>The first stage that answers "no" is where the problem is.</p>
+
+      <div class="pager">
+        <a class="prev" href="cfe-permissions.html"><span class="dir">Previous: Step 3</span><span class="ttl">← Enable the Score Writeback</span></a>
+        <a class="next" href="index.html"><span class="dir">Back to start</span><span class="ttl">Overview →</span></a>
+      </div>
+
+      <footer>Community setup guide for Health Cloud Patient Access Scoring. Not an official Salesforce publication.</footer>
+    </main>
+  </div>
+  <script src="assets/site.js"></script>
+</body>
+</html>

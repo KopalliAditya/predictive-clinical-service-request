@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Step 1: Install the Health Cloud Scoring Data Kit | Patient Access Scoring Setup</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="data-kit">
+  <div class="layout">
+    <main class="content">
+      <nav class="breadcrumb">
+        <a href="index.html">Patient Access Scoring</a><span class="sep">›</span>
+        Step 1: Install the Data Kit
+      </nav>
+
+      <h1>Step 1 — Install the Health Cloud Scoring Data Kit</h1>
+      <p class="subtitle">Deploy the data kit that maps your Clinical Service Request data into the Data Cloud model objects the scoring model reads.</p>
+
+      <h2>Why you need this</h2>
+      <p>The scoring model doesn't read your CRM directly — it reads <strong>Data Model Objects (DMOs)</strong> in Data Cloud. The data kit is what connects the two. It defines the data streams that pull <code>ClinicalServiceRequest</code> and its related objects out of the CRM and map them, field by field, into the DMOs.</p>
+      <p>Without the data kit, the DMOs the model expects are either missing or empty, and Step 2 will fail its readiness checks.</p>
+
+      <div class="callout note">
+        <span class="label">About the "CSRScore" stream bundle</span>
+        Inside the <strong>Health Cloud Scoring</strong> data kit, the bundle of data streams is named <strong>CSRScore</strong> (short for Clinical Service Request Score). You'll see this name on the Data Streams page after deployment — it's the group of streams this kit creates, not a separate thing to install.
+      </div>
+
+      <h2>What the data kit contains</h2>
+      <p>The <strong>Health Cloud Scoring</strong> data kit (CSRScore bundle) creates four data streams, each mapping a source object to a DMO:</p>
+      <table>
+        <thead><tr><th>Source object</th><th>Target DMO</th><th>What it provides</th></tr></thead>
+        <tbody>
+          <tr><td>Clinical Service Request</td><td><code>ClinicalServiceRequestDmo</code></td><td>The record being scored: priority, status, status start date, and the acceptance outcome used as the training label.</td></tr>
+          <tr><td>Clinical Service Request Detail</td><td><code>ClinicalServiceRequestDetailDmo</code></td><td>Detail-level reference data linked to the request.</td></tr>
+          <tr><td>Diagnostic Summary</td><td><code>DiagnosticSummaryDmo</code></td><td>Diagnostic category — an optional model feature.</td></tr>
+          <tr><td>Health Condition</td><td><code>PatientHealthConditionDmo</code></td><td>Patient health condition severity — an optional model feature.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout tip">
+        <span class="label">The acceptance field is mapped for you</span>
+        The CSR stream includes a formula field that converts the request's <code>IsAccepted</code> value into the boolean <code>IsAccepted</code> field on the DMO. This matters because the training label reads that boolean. If acceptance looks unmapped after deploy, see <a href="troubleshooting.html#activating">Troubleshooting: model stuck in Activating</a>.
+      </div>
+
+      <h2>Deploy the data kit</h2>
+      <div class="step"><div class="num">1</div><div class="body"><p>From Setup, go to <strong>Data Cloud Setup</strong> and select <strong>Data Kits</strong>.</p></div></div>
+      <div class="step"><div class="num">2</div><div class="body"><p>Select <strong>Health Cloud Scoring</strong>.</p></div></div>
+      <div class="step"><div class="num">3</div><div class="body"><p>Review the contents, then click <strong>Data Kit Deploy</strong>.</p></div></div>
+      <div class="step"><div class="num">4</div><div class="body"><p>Select the <strong>data space</strong> you want to deploy into, and enter your <strong>org ID</strong>.</p></div></div>
+      <div class="step"><div class="num">5</div><div class="body"><p>Click <strong>Deploy</strong>.</p></div></div>
+      <div class="step"><div class="num">6</div><div class="body"><p>Wait for the deployment to finish. Track its progress on the <strong>Deployment History</strong> tab.</p></div></div>
+
+      <h2>Verify the DMO field mappings</h2>
+      <p>After deployment, confirm the field mappings landed correctly:</p>
+      <div class="step"><div class="num">7</div><div class="body"><p>From the App Launcher, open <strong>Data Streams</strong>.</p></div></div>
+      <div class="step"><div class="num">8</div><div class="body">
+        <p>Open each stream from the CSRScore bundle and confirm these mappings exist:</p>
+        <table>
+          <thead><tr><th>Data stream</th><th>Fields mapped to the DMO</th></tr></thead>
+          <tbody>
+            <tr><td>Clinical Service Request</td><td>Priority, Status, Status Start Date, and Accepted (IsAccepted)</td></tr>
+            <tr><td>Clinical Service Request Detail</td><td>Detail record reference</td></tr>
+            <tr><td>Diagnostic Summary</td><td>Diagnostic Category</td></tr>
+            <tr><td>Patient Health Condition</td><td>Severity</td></tr>
+          </tbody>
+        </table>
+      </div></div>
+
+      <div class="callout warning">
+        <span class="label">Confirm data is flowing before Step 2</span>
+        Mapping the streams isn't enough — the DMOs must actually contain rows. After the streams run, confirm the <code>ClinicalServiceRequest</code> DMO has at least 400 records (see <a href="prerequisites.html">Prerequisites</a>). An empty DMO is the number-one reason Step 2's readiness check fails.
+      </div>
+
+      <div class="pager">
+        <a class="prev" href="prerequisites.html"><span class="dir">Previous</span><span class="ttl">← Prerequisites</span></a>
+        <a class="next" href="scoring-framework.html"><span class="dir">Next: Step 2</span><span class="ttl">Install the Scoring Template →</span></a>
+      </div>
+
+      <footer>Community setup guide for Health Cloud Patient Access Scoring. Not an official Salesforce publication.</footer>
+    </main>
+  </div>
+  <script src="assets/site.js"></script>
+</body>
+</html>

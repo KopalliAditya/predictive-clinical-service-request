@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Step 3: Enable the Score Writeback (Copy Field Enrichment) | Patient Access Scoring Setup</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="cfe-permissions">
+  <div class="layout">
+    <main class="content">
+      <nav class="breadcrumb">
+        <a href="index.html">Patient Access Scoring</a><span class="sep">›</span>
+        Step 3: Enable the Score Writeback
+      </nav>
+
+      <h1>Step 3 — Enable the Score Writeback</h1>
+      <p class="subtitle">Configure Copy Field Enrichment to copy the model's score from Data Cloud back onto the Clinical Service Request, and grant the integration user the permissions the writeback needs.</p>
+
+      <h2>Why this step exists</h2>
+      <p>The model writes its score into a Data Cloud DMO (<code>ClinicalServiceRequestScoringData</code>). To make that score visible to referral coordinators, it has to come back to the CRM. <strong>Copy Field Enrichment (CFE)</strong> is the Data Cloud feature that copies a DMO field back onto a CRM object.</p>
+      <p>The writeback runs as a fixed Data Cloud integration user — not as you. That user needs specific Health Cloud permissions, and granting them is the step most setups miss. When it's missed, everything else looks healthy but <strong>the score silently never appears on the CSR</strong>.</p>
+
+      <h2>Part A — Create the Copy Field Enrichment</h2>
+      <div class="step"><div class="num">1</div><div class="body"><p>In Data Cloud Setup, create a new <strong>Copy Field Enrichment</strong>.</p></div></div>
+      <div class="step"><div class="num">2</div><div class="body">
+        <p>Set the <strong>source</strong> object to <strong>Clinical Service Request Scoring Data</strong> (the scoring DMO the model writes to).</p>
+      </div></div>
+      <div class="step"><div class="num">3</div><div class="body">
+        <p>Set the <strong>target</strong> object to <strong>Clinical Service Request</strong>, and map the score to the <strong>Referral Score</strong> field.</p>
+        <div class="callout note">
+          <span class="label">Match on the record identifier</span>
+          The enrichment matches each scoring-DMO row to its CRM Clinical Service Request by the record ID, which flows through unchanged from CRM → DMO → scoring DMO. No extra key configuration is required as long as the data kit streams from Step 1 are running.
+        </div>
+      </div></div>
+      <div class="step"><div class="num">4</div><div class="body"><p>Save and start the enrichment.</p></div></div>
+
+      <h2>Part B — Grant the integration user the required permissions</h2>
+      <p>The writeback executes as the Data Cloud <strong>Customer 360 Data Platform Integration</strong> user (the <code>cloud@&lt;org&gt;</code> integration user), using the <code>sfdc_a360</code> permission set. For the writeback to update a Health Cloud object, two things must be true:</p>
+      <ol>
+        <li>The <strong>Manage Health Cloud</strong> permission must be enabled on the <strong>sfdc_a360</strong> permission set.</li>
+        <li>The <strong>Health Cloud Platform</strong> permission set license must be assigned to the <code>cloud@</code> integration user.</li>
+      </ol>
+
+      <h3>Option 1 — Setup UI</h3>
+      <div class="step"><div class="num">1</div><div class="body"><p>In Setup, open <strong>Permission Sets</strong> and select <strong>Customer 360 Data Platform Integration</strong> (API name <code>sfdc_a360</code>).</p></div></div>
+      <div class="step"><div class="num">2</div><div class="body"><p>Under <strong>System Permissions</strong>, enable <strong>Manage Health Cloud</strong> and save.</p></div></div>
+      <div class="step"><div class="num">3</div><div class="body"><p>In Setup, open <strong>Users</strong>, find the <strong>Customer 360 Data Platform</strong> integration user (login <code>cloud@&lt;your-org-id&gt;</code>), and assign the <strong>Health Cloud Platform</strong> permission set license.</p></div></div>
+
+      <h3>Option 2 — Anonymous Apex</h3>
+      <p>The same two grants in one script. Run from the Developer Console or <code>sf apex run</code>. The script looks the integration user up by its login prefix, so there are no org-specific IDs to paste in:</p>
+      <pre><code>// Enable Manage Health Cloud on the Data Cloud integration permission set
+PermissionSet a360 = [SELECT Id FROM PermissionSet WHERE Name = 'sfdc_a360' LIMIT 1];
+a360.PermissionsManageHealthCloud = true;
+update a360;
+System.debug('Enabled ManageHealthCloud on sfdc_a360');
+
+// Assign the Health Cloud Platform PSL to the cloud@ integration user
+User cloudUser = [SELECT Id FROM User WHERE Username LIKE 'cloud@%' AND IsActive = true LIMIT 1];
+PermissionSetLicense psl = [SELECT Id FROM PermissionSetLicense
+                            WHERE DeveloperName = 'HealthCloudPlatformPsl' LIMIT 1];
+if (0 == [SELECT COUNT() FROM PermissionSetLicenseAssign
+          WHERE AssigneeId = :cloudUser.Id AND PermissionSetLicenseId = :psl.Id]) {
+    insert new PermissionSetLicenseAssign(
+        AssigneeId = cloudUser.Id, PermissionSetLicenseId = psl.Id);
+    System.debug('Assigned HealthCloudPlatformPsl to ' + cloudUser.Id);
+}</code></pre>
+
+      <div class="callout warning">
+        <span class="label">Restart the sync after changing permissions</span>
+        Permission changes don't apply to an enrichment that's already running. After granting the permissions, do a full <strong>Stop</strong> then <strong>Start</strong> of the data sync / enrichment so the writeback picks up the new access.
+      </div>
+
+      <h2>How to verify the writeback works</h2>
+      <div class="step"><div class="num">1</div><div class="body">
+        <p><strong>Confirm the Referral Score field exists</strong> on Clinical Service Request. If it doesn't, the CFE target mapping was never created — go back to Part A. You can check with a field query:</p>
+        <pre><code>SELECT QualifiedApiName FROM FieldDefinition
+WHERE EntityDefinition.QualifiedApiName = 'ClinicalServiceRequest'
+  AND QualifiedApiName LIKE '%Referral%'</code></pre>
+      </div></div>
+      <div class="step"><div class="num">2</div><div class="body">
+        <p><strong>Confirm scores are landing.</strong> After a sync run, count CSR records with a non-null score:</p>
+        <pre><code>SELECT COUNT(Id) FROM ClinicalServiceRequest WHERE ReferralScore != null</code></pre>
+        <p>A non-zero, growing count means the writeback is working end to end.</p>
+      </div></div>
+      <div class="step"><div class="num">3</div><div class="body">
+        <p><strong>Confirm coordinators can see it.</strong> Open a scored Clinical Service Request as a referral coordinator and verify the <strong>Referral Score</strong> field is on the page layout and visible to their profile.</p>
+      </div></div>
+
+      <div class="callout tip">
+        <span class="label">Done</span>
+        When the score count is non-zero and growing, and coordinators can see the Referral Score on the record, the feature is fully set up. New Clinical Service Requests will be scored on each sync cycle.
+      </div>
+
+      <div class="pager">
+        <a class="prev" href="scoring-framework.html"><span class="dir">Previous: Step 2</span><span class="ttl">← Install the Scoring Template</span></a>
+        <a class="next" href="troubleshooting.html"><span class="dir">Next</span><span class="ttl">Troubleshooting →</span></a>
+      </div>
+
+      <footer>Community setup guide for Health Cloud Patient Access Scoring. Not an official Salesforce publication.</footer>
+    </main>
+  </div>
+  <script src="assets/site.js"></script>
+</body>
+</html>
