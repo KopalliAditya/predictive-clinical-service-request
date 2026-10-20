@@ -36,6 +36,8 @@
       <h2>Features</h2>
       <p>Each feature is a toggle that tells the model it may use that signal. Priority and request age are always included.</p>
 
+      <figure class="shot" data-caption="The Select Features step with the seven predefined features selected: Clinical Service Request Priority, Clinical Service Request Type, Age, Has Diagnostic Summary, Has Patient Health Condition, Diagnostic Summary Category, and Patient Health Condition Severity." data-src="images/scoring-features.png"></figure>
+
       <div class="param">
         <div class="pname">Include Clinical Service Request Type</div>
         <div class="pmeta">Optional &nbsp;·&nbsp; Default: <span class="default">On</span></div>
@@ -90,39 +92,6 @@
       </div>
 
       <figure class="shot" data-caption="Separate training and scoring filters: training on Status = Manual Required (1,638 records) and a broader scoring filter, Status = Manual Required OR Draft (1,882 records), so the model trains on resolved requests but scores a wider set." data-src="images/scoring-filter-split.png"></figure>
-
-      <h2 id="target">Target Variable</h2>
-      <p>Defines the <strong>training label</strong> — the outcome the model learns to predict.</p>
-
-      <div class="param">
-        <div class="pname">Target Variable details</div>
-        <div class="pmeta">Optional &nbsp;·&nbsp; Default: referral acceptance (Binary, Maximize)</div>
-        <p>Defines the training label the model learns to predict. The condition is a SQL expression evaluated on the Clinical Service Request source and must return the numeric outcome value. Defaults to referral acceptance; override it for other Clinical Service Request use cases.</p>
-        <p>The default is made up of these sub-fields:</p>
-        <table>
-          <thead><tr><th>Sub-field</th><th>Default</th><th>Meaning</th></tr></thead>
-          <tbody>
-            <tr><td>Label</td><td><code>Derived Score</code></td><td>Display name of the predicted outcome.</td></tr>
-            <tr><td>Field</td><td><code>DerivedScore__c</code></td><td>The field that holds the derived training outcome.</td></tr>
-            <tr><td>Type</td><td><code>Binary</code></td><td>The outcome is yes/no (accepted vs. not).</td></tr>
-            <tr><td>Success</td><td><code>1</code></td><td>Value that represents the positive outcome (accepted).</td></tr>
-            <tr><td>Failure</td><td><code>0</code></td><td>Value that represents the negative outcome (not accepted).</td></tr>
-            <tr><td>Goal</td><td><code>Maximize</code></td><td>The model optimizes for the success outcome.</td></tr>
-            <tr><td>Condition</td><td colspan="2">The SQL that computes the outcome (below).</td></tr>
-          </tbody>
-        </table>
-        <p>The default <strong>condition</strong> classifies a request as accepted (<code>1</code>) when it is marked accepted <em>or</em> has reached an Active/Completed status:</p>
-        <pre><code>CASE
-  WHEN ssot__IsAccepted__c = 1 OR ssot__IsAccepted__c = true THEN 1
-  WHEN ssot__ClinicalServiceRequestStatus__c IN ('Active', 'Completed') THEN 1
-  ELSE 0
-END</code></pre>
-      </div>
-
-      <div class="callout important">
-        <span class="label">The label depends on IsAccepted being a real boolean</span>
-        The condition compares <code>ssot__IsAccepted__c</code> to <code>true</code>/<code>1</code>. This only matches if the data kit mapped acceptance into the DMO as a boolean (Step 1 does this). If acceptance arrives as text, the comparison never matches, every row gets label <code>0</code>, and the model can hang in <em>Activating</em>. See <a href="troubleshooting.html#activating">Troubleshooting</a>.
-      </div>
 
       <h2>Parameters you don't set</h2>
       <p>Two parameters are managed by the framework — leave them at their defaults: <strong>Train and Deploy</strong> (defaults to on) and an internal test flag used only by functional tests.</p>

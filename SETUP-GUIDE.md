@@ -149,34 +149,6 @@ the Clinical Service Request source. Leave blank to score all requests.
 - **Custom Filter logic (Training)** — training transform only.
 - **Custom Filter logic (Scoring)** — scoring transform only.
 
-**Target Variable** — defines the **training label**, the outcome the model
-learns to predict. Default is referral acceptance:
-
-| Sub-field | Default | Meaning |
-|---|---|---|
-| Label | `Derived Score` | Display name of the predicted outcome |
-| Field | `DerivedScore__c` | Field holding the derived training outcome |
-| Type | `Binary` | Yes/no outcome (accepted vs. not) |
-| Success | `1` | Positive outcome (accepted) |
-| Failure | `0` | Negative outcome (not accepted) |
-| Goal | `Maximize` | Model optimizes for the success outcome |
-
-Default **condition** (classifies a request as accepted when it's marked
-accepted _or_ has reached an Active/Completed status):
-
-```sql
-CASE
-  WHEN ssot__IsAccepted__c = 1 OR ssot__IsAccepted__c = true THEN 1
-  WHEN ssot__ClinicalServiceRequestStatus__c IN ('Active', 'Completed') THEN 1
-  ELSE 0
-END
-```
-
-> **The label depends on `IsAccepted` being a real boolean.** If acceptance
-> arrives as text instead, the comparison never matches, every row gets label
-> `0`, and the model can hang in _Activating_. Step 1's data kit maps it as a
-> boolean for you.
-
 **Parameters you don't set** — leave **Train and Deploy** (default on) and the
 internal test flag at their defaults.
 
