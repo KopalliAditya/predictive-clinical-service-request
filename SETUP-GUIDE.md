@@ -35,6 +35,21 @@ CRM (Clinical Service Request)
 
 Before you start, confirm all of the following.
 
+**Licenses / entitlements** — three capabilities have to be licensed for the
+feature to work end to end:
+
+| Needed for | License / entitlement |
+|---|---|
+| Foundation (all steps) | **Health Cloud** (Enterprise, Performance, or Unlimited; Lightning Experience) |
+| Data kit — Step 1 | **Data Cloud (Data 360)** — a separate entitlement, _not_ included with Health Cloud. Provides the DMOs, data streams, and data kits; needs at least one active data space. |
+| Scoring Framework — Step 2 | **Einstein Studio (Model Builder)** on Data Cloud + the **Scoring Framework** entitlement (a permission-set license; may show as _Scoring Framework_ or _AI Accelerator_ depending on release). The model trains as a Data Cloud Einstein Studio model. |
+| Writeback — Step 3 | **Data Cloud (Data 360)** + the **Health Cloud Platform** permission-set license (`HealthCloudPlatformPsl`) on the Data Cloud integration user. Copy Field Enrichment is a standard Data Cloud feature (no extra SKU). |
+
+> Data Cloud (Data 360) and the Scoring Framework / Einstein entitlements are
+> licensed separately from Health Cloud, and their customer-facing names can vary
+> by release. This template is relatively new — if a step is blocked by a missing
+> license, confirm the current entitlement names with your Salesforce account team.
+
 **Data**
 - **Clinical Service Request records exist in your CRM.** The model trains on
   these records.

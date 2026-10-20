@@ -18,11 +18,38 @@
       <p class="subtitle">Confirm these are in place before you begin.</p>
 
       <h2>Org and licensing</h2>
-      <ul>
-        <li><strong>Health Cloud</strong> enabled (Enterprise, Performance, or Unlimited edition, Lightning Experience).</li>
-        <li><strong>Data Cloud</strong> provisioned, with at least one active <strong>data space</strong>. You select this data space in Steps 1 and 2.</li>
-        <li><strong>Clinical Service Request</strong> records exist in your CRM. The model trains on these records (see Data readiness below).</li>
-      </ul>
+      <p>Three capabilities have to be licensed in the org for this feature to work end to end — the Data Cloud data kit (Step 1), the Scoring Framework model (Step 2), and the Copy Field Enrichment writeback (Step 3). Here's what each one needs.</p>
+      <table>
+        <thead><tr><th>Needed for</th><th>License / entitlement</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Foundation (all steps)</td>
+            <td><strong>Health Cloud</strong></td>
+            <td>Enterprise, Performance, or Unlimited edition, in Lightning Experience.</td>
+          </tr>
+          <tr>
+            <td>Data kit — Step 1</td>
+            <td><strong>Data Cloud</strong> (Data 360)</td>
+            <td>A separate entitlement from Health Cloud — it is <em>not</em> included with a Health Cloud license. Provides the data model objects (DMOs), data streams, and data kits. You also need at least one active <strong>data space</strong>, which you select in Steps 1 and 2.</td>
+          </tr>
+          <tr>
+            <td>Scoring Framework — Step 2</td>
+            <td><strong>Einstein Studio</strong> (Model Builder) on Data Cloud + the <strong>Scoring Framework</strong> entitlement</td>
+            <td>The template trains its predictive model as a Data Cloud Einstein Studio model, so it needs Data Cloud's AI (Einstein) capability enabled. The Scoring Framework entitlement — a permission-set license that lets you install Scoring Framework template configurations — can appear under a name such as <em>Scoring Framework</em> or <em>AI Accelerator</em> depending on your release.</td>
+          </tr>
+          <tr>
+            <td>Writeback — Step 3</td>
+            <td><strong>Data Cloud</strong> (Data 360) + the <strong>Health Cloud Platform</strong> permission-set license</td>
+            <td>Copy Field Enrichment is a standard Data Cloud feature — no extra SKU. The <strong>Health Cloud Platform</strong> permission-set license (<code>HealthCloudPlatformPsl</code>) must be assigned to the Data Cloud integration user so the writeback can update the Health Cloud record. See <a href="cfe-permissions.html">Step 3</a>.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>You also need <strong>Clinical Service Request</strong> records in your CRM for the model to train on — see <strong>Data readiness</strong>, below.</p>
+
+      <div class="callout note">
+        <span class="label">Confirm the exact entitlement names with your account team</span>
+        Data Cloud (Data 360) and the Scoring Framework / Einstein entitlements are licensed separately from Health Cloud, and their customer-facing names can vary by release. This template is relatively new, so if a step is blocked by a missing license, confirm the current entitlement names and provisioning with your Salesforce account team.
+      </div>
 
       <h2>Data readiness</h2>
       <p>The scoring template runs readiness checks when you install it. Meet these so the checks pass:</p>
