@@ -22,9 +22,8 @@
       <div class="step"><div class="num">2</div><div class="body">
         <p>Find and install the <strong>Predictive Analytics for Clinical Service Requests</strong> template.</p>
       </div></div>
-      <figure class="shot" data-caption="The Scoring Framework template list with Predictive Analytics for Clinical Service Requests selected." data-src="images/scoring-template-tile.png"></figure>
+      <figure class="shot" data-caption="The install wizard with Template Configuration Type set to Predictive Analytics for Clinical Service Requests." data-src="images/scoring-template-type.png"></figure>
       <div class="step"><div class="num">3</div><div class="body"><p>Step through the install wizard and set the parameters below. Each parameter has a default value.</p></div></div>
-      <figure class="shot" data-caption="The install wizard where each parameter (Data Space, features, filters, Target Variable) is set." data-src="images/scoring-wizard-params.png"></figure>
 
       <h2>Data Space</h2>
 
@@ -76,6 +75,8 @@
         <p>SQL filter applied to the Clinical Service Request source in both the training and scoring data transforms. Leave blank to score all Clinical Service Requests.</p>
       </div>
 
+      <figure class="shot" data-caption="A single custom filter on the Clinical Service Request source — here Status equals Manual Required — applied to both training and scoring. The preview confirms the matching record count is sufficient to train (1,638 records)." data-src="images/scoring-filter.png"></figure>
+
       <div class="param">
         <div class="pname">Custom Filter logic (Training)</div>
         <div class="pmeta">Optional &nbsp;·&nbsp; Default: <span class="default">(blank)</span></div>
@@ -87,6 +88,8 @@
         <div class="pmeta">Optional &nbsp;·&nbsp; Default: <span class="default">(blank)</span></div>
         <p>SQL filter applied only to the scoring data transform. Used together with a separate training filter.</p>
       </div>
+
+      <figure class="shot" data-caption="Separate training and scoring filters: training on Status = Manual Required (1,638 records) and a broader scoring filter, Status = Manual Required OR Draft (1,882 records), so the model trains on resolved requests but scores a wider set." data-src="images/scoring-filter-split.png"></figure>
 
       <h2 id="target">Target Variable</h2>
       <p>Defines the <strong>training label</strong> — the outcome the model learns to predict.</p>

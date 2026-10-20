@@ -30,10 +30,11 @@
         <p>Set the <strong>target</strong> object to <strong>Clinical Service Request</strong>, and map the score to the <strong>Referral Score</strong> field.</p>
         <div class="callout note">
           <span class="label">Match on the record identifier</span>
-          Map the record identifier as the match key so each scoring row updates the right Clinical Service Request. The identifier flows from the CRM record through the DMO to the scoring DMO.
+          Set the ID Matching Method to <strong>Use the Primary Key</strong> so each scoring row updates the right Clinical Service Request. The identifier flows from the CRM record through the DMO to the scoring DMO.
         </div>
       </div></div>
-      <figure class="shot" data-caption="Copy Field Enrichment: source Clinical Service Request Scoring Data mapped to the Referral Score field on Clinical Service Request." data-src="images/cfe-mapping.png"></figure>
+      <figure class="shot" data-caption="The New Data 360 Copy Fields dialog: source Clinical Service Request Scoring Data, target Clinical Service Request, and ID Matching Method set to Use the Primary Key." data-src="images/cfe-create.png"></figure>
+      <figure class="shot" data-caption="Map Fields: the model's Predicted CSR Score (DerivedScore_prediction__c) mapped to the Referral Score (ReferralScore) field on Clinical Service Request." data-src="images/cfe-mapping.png"></figure>
       <div class="step"><div class="num">4</div><div class="body"><p>Save and start the enrichment.</p></div></div>
 
       <h2>Part B — Grant the integration user the required permissions</h2>

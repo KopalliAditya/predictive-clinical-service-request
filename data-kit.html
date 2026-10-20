@@ -45,20 +45,19 @@
       </div>
 
       <h2>Deploy the data kit</h2>
-      <div class="step"><div class="num">1</div><div class="body"><p>From Setup, go to <strong>Data Cloud Setup</strong> and select <strong>Data Kits</strong>.</p></div></div>
-      <div class="step"><div class="num">2</div><div class="body"><p>Select <strong>Health Cloud Scoring</strong>.</p></div></div>
-      <figure class="shot" data-caption="Data Cloud Setup → Data Kits, with the Health Cloud Scoring data kit selected." data-src="images/data-kits-list.png"></figure>
-      <div class="step"><div class="num">3</div><div class="body"><p>Review the contents, then click <strong>Data Kit Deploy</strong>.</p></div></div>
-      <figure class="shot" data-caption="The Data Kit Deploy dialog: select the data space and enter your org ID." data-src="images/data-kit-deploy.png"></figure>
-      <div class="step"><div class="num">4</div><div class="body"><p>Select the <strong>data space</strong> you want to deploy into, and enter your <strong>org ID</strong>.</p></div></div>
-      <div class="step"><div class="num">5</div><div class="body"><p>Click <strong>Deploy</strong>.</p></div></div>
-      <div class="step"><div class="num">6</div><div class="body"><p>Wait for the deployment to finish. Track its progress on the <strong>Deployment History</strong> tab.</p></div></div>
+      <p>The data kit's streams are brought in from the <strong>CSRScore</strong> bundle when you create a data stream in Data Cloud.</p>
+      <div class="step"><div class="num">1</div><div class="body"><p>In Data Cloud, start a <strong>New Data Stream</strong> and select your Salesforce org as the source.</p></div></div>
+      <div class="step"><div class="num">2</div><div class="body"><p>Switch to <strong>View Bundles</strong> and select the <strong>CSRScore</strong> bundle. Its Bundle Details confirm it is a <em>Standard Data Bundle</em> that brings in four objects: Clinical Service Request, Diagnostic Summary, Clinical Service Request Detail, and Health Condition.</p></div></div>
+      <figure class="shot" data-caption="New Data Stream → View Bundles: the CSRScore standard data bundle selected, showing the four objects it ingests — ClinicalServiceRequest, DiagnosticSummary, ClinicalServiceRequestDetail, and HealthCondition." data-src="images/data-stream-bundle.png"></figure>
+      <div class="step"><div class="num">3</div><div class="body"><p>For each object, review the fields that Data Cloud will ingest into its data lake object (DLO). On <strong>ClinicalServiceRequest</strong>, the 50 standard fields are selected by default. Leave the <strong>Batch Ingestion</strong> boxes unchecked to use streaming ingestion.</p></div></div>
+      <figure class="shot" data-caption="Selecting the fields to ingest for ClinicalServiceRequest (50 standard fields) into its DLO. One DLO is created per object in the bundle." data-src="images/data-stream-fields.png"></figure>
+      <div class="step"><div class="num">4</div><div class="body"><p>Finish the wizard. Data Cloud creates the DLOs and maps them to the Clinical Service Request, Diagnostic Summary, Clinical Service Request Detail, and Patient Health Condition DMOs.</p></div></div>
 
       <h2>Verify the DMO field mappings</h2>
       <p>After deployment, confirm the field mappings landed correctly:</p>
-      <div class="step"><div class="num">7</div><div class="body"><p>From the App Launcher, open <strong>Data Streams</strong>.</p></div></div>
-      <figure class="shot" data-caption="A data stream's field-mapping view, showing source fields mapped to the Clinical Service Request DMO." data-src="images/data-stream-mappings.png"></figure>
-      <div class="step"><div class="num">8</div><div class="body">
+      <div class="step"><div class="num">5</div><div class="body"><p>From the App Launcher, open <strong>Data Streams</strong> and open the stream's mapping view.</p></div></div>
+      <figure class="shot" data-caption="A data stream's field-mapping view: the ClinicalServiceRequest DLO on the left mapped field-by-field to the Clinical Service Request DMO on the right, including the Clinical Service Request Id primary key." data-src="images/data-stream-mappings.png"></figure>
+      <div class="step"><div class="num">6</div><div class="body">
         <p>Confirm each stream is mapped to its DMO, then check that the fields the model's data transforms read are mapped. These are the exact fields to look for:</p>
 
         <h3>Clinical Service Request DMO (<code>ssot__ClinicalServiceRequest__dlm</code>)</h3>
