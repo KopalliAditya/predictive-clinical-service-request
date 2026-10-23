@@ -436,6 +436,31 @@ td code { white-space: nowrap; }
 .muted { color: var(--sf-text-weakest); font-weight: 400; }
 .flow .node .muted { display: block; font-size: 11px; margin-top: 2px; }
 
+/* "Where to check" box + doc reference line */
+.where {
+  border: 1px solid var(--sf-border);
+  border-left: 4px solid var(--sf-blue);
+  border-radius: var(--sf-radius);
+  background: #f6f9ff;
+  padding: 10px 16px;
+  margin: 14px 0;
+}
+.where .label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--sf-blue);
+  margin-bottom: 2px;
+}
+.where p { margin: 4px 0 0; }
+.docref {
+  font-size: 13px;
+  color: var(--sf-text-weak);
+  margin-top: 8px;
+}
+
 /* Figures / screenshots */
 figure.shot {
   margin: 20px 0;

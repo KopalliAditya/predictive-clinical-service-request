@@ -16,6 +16,11 @@ without images.
 | `scoring-asset-saving.png` | Step 2 | Enable Asset Saving step, Save Assets toggle (Off by default) |
 | `cfe-create.png` | Step 3 | New Data 360 Copy Fields dialog (source, target, Use the Primary Key) |
 | `cfe-mapping.png` | Step 3 | Map Fields: DerivedScore_prediction__c → ReferralScore |
+| `check-data-explorer.png` | After You Install | Data Explorer showing rows in the ClinicalServiceRequest DMO |
+| `bdt-training.png` | After You Install | The training Batch Data Transform — run history + ClinicalServiceRequestTrainingData target |
+| `bdt-scoring.png` | After You Install | The scoring Batch Data Transform — ClinicalServiceRequestScoringData target |
+| `ai-model.png` | After You Install | Model Builder: the scoring model with status Active + metrics |
+| `app-hub.png` | After You Install | Setup → App Hub: the generated app and its App Install History |
 
 Recommended width ~1200px. Crop to the relevant panel. **Redact any real patient
 data, org IDs, usernames, and access tokens before committing** — this repo is public.

@@ -13,6 +13,7 @@ const NAV = [
     { id: "cfe-permissions",   href: "cfe-permissions.html",   label: "Enable the Score Writeback",      step: 3 },
   ]},
   { group: "Reference", items: [
+    { id: "after-install",     href: "after-install.html",     label: "After You Install" },
     { id: "troubleshooting",   href: "troubleshooting.html",   label: "Troubleshooting" },
   ]},
 ];

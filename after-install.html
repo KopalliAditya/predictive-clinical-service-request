@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>After You Install: What to Check and Where | Predictive Analytics for Clinical Service Requests</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="after-install">
+  <div class="layout">
+    <main class="content">
+      <nav class="breadcrumb">
+        <a href="index.html">Predictive Analytics for Clinical Service Requests</a><span class="sep">›</span>
+        After You Install
+      </nav>
+
+      <h1>After You Install — What to Check and Where</h1>
+      <p class="subtitle">Once the template install finishes, confirm each piece of the pipeline it built. Check them in order — each one feeds the next.</p>
+
+      <p>The setup creates its pieces in two places: <strong>Data Cloud</strong> (now called <strong>Data 360</strong>) holds the data transforms, the AI model, and the scoring data; your <strong>CRM</strong> holds the final Referral Score. Work through the checks below top to bottom. If a check fails, fix it before moving on — a later piece can't be right if the one before it isn't.</p>
+
+      <h2>The order to check</h2>
+      <table>
+        <thead><tr><th>#</th><th>Check</th><th>Where</th><th>Looks right when</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>CSR data landed in the DMOs</td><td>Data Cloud → <strong>Data Explorer</strong></td><td>The <code>ClinicalServiceRequest</code> DMO has rows</td></tr>
+          <tr><td>2</td><td>Both Batch Data Transforms ran</td><td>Data Cloud → <strong>Data Transforms</strong></td><td>The training and scoring transforms each show a successful last run</td></tr>
+          <tr><td>3</td><td>The AI model is live</td><td>Data Cloud → <strong>Model Builder</strong></td><td>The model's status is <strong>Active</strong></td></tr>
+          <tr><td>4</td><td>The app installed</td><td>Setup → <strong>App Hub</strong></td><td>The generated app shows an <em>Installed</em> / completed status</td></tr>
+          <tr><td>5</td><td>Scores written to the scoring DMO</td><td>Data Cloud → <strong>Data Explorer</strong></td><td>The scoring DMO's <code>DerivedScore_prediction__c</code> is populated</td></tr>
+          <tr><td>6</td><td>Referral Score on the CSR</td><td>CRM → a Clinical Service Request record</td><td>The <strong>Referral Score</strong> field shows the value</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout note">
+        <span class="label">What are these things?</span>
+        This page says <em>where</em> to check each piece and <em>what good looks like</em>. For a plain-language explanation of what the two data transforms and the AI model actually do, see <a href="how-it-works.html">How It Works</a>.
+      </div>
+
+      <h2 id="dmo-data">1. CSR data landed in the DMOs</h2>
+      <p>Before anything can run, your Clinical Service Request data has to be in Data Cloud. The data kit (Step 1) maps it into <strong>data model objects (DMOs)</strong> — the standardized tables everything downstream reads.</p>
+      <div class="where">
+        <span class="label">Where to check</span>
+        <p>In the <strong>Data Cloud</strong> (Data 360) app, open the <strong>Data Explorer</strong> tab. Pick your data space, then select the <code>Clinical Service Request</code> data model object and browse its records.</p>
+      </div>
+      <p><strong>Looks right when:</strong> the DMO returns rows — at least the <a href="prerequisites.html">400 records</a> the model needs to train. An empty DMO means the data streams haven't run or finished; go back to <a href="data-kit.html">Step 1</a>.</p>
+      <figure class="shot" data-caption="Data Explorer showing rows in the Clinical Service Request DMO. Use the data space selector at the top to match the one you installed into." data-src="images/check-data-explorer.png"></figure>
+      <p class="docref">Docs: <a href="https://help.salesforce.com/s/articleView?id=data.c360_a_data_explorer.htm&type=5">Data Explorer</a> · <a href="https://help.salesforce.com/s/articleView?id=data.c360_a_enable_data_explorer_permissions.htm&type=5">Permissions for Data Explorer</a></p>
+
+      <h2 id="bdts">2. The two Batch Data Transforms</h2>
+      <p>A <strong>Batch Data Transform (BDT)</strong> is a Data Cloud job that reads one or more DMOs, derives and reshapes fields, and writes the result to another DMO on a schedule. The scoring template builds <strong>two</strong> of them, and you can see both here.</p>
+      <div class="where">
+        <span class="label">Where to check</span>
+        <p>In the <strong>Data Cloud</strong> (Data 360) app, open the <strong>Data Transforms</strong> tab. The two transforms the template created both appear in the list with type <em>Batch</em>. Open each one to see its last run and its status.</p>
+      </div>
+
+      <h3>Training transform</h3>
+      <p>Reads your <em>resolved</em> Clinical Service Requests, computes the model's features <em>and</em> the accept/not-accept label, and writes the result to the <code>ClinicalServiceRequestTrainingData</code> DMO. This is the labeled history the model learns from.</p>
+      <figure class="shot" data-caption="The training Batch Data Transform. The run history shows a successful last run and the target DMO is ClinicalServiceRequestTrainingData." data-src="images/bdt-training.png"></figure>
+
+      <h3>Scoring transform</h3>
+      <p>Reads the Clinical Service Requests you want scored, computes the <em>same</em> features (no label), and — after the model runs — the predicted score lands in the <code>ClinicalServiceRequestScoringData</code> DMO.</p>
+      <figure class="shot" data-caption="The scoring Batch Data Transform, writing to ClinicalServiceRequestScoringData. Its source filter is usually broader than the training transform's." data-src="images/bdt-scoring.png"></figure>
+
+      <p><strong>Looks right when:</strong> both transforms show a <em>successful</em> last run (not failed or never-run). If a transform hasn't run yet, you can run it manually from this tab. The <a href="scoring-framework.html#filters">custom filters</a> you set in Step 2 decide which requests each one reads.</p>
+      <p class="docref">Docs: <a href="https://help.salesforce.com/s/articleView?id=data.c360_a_batch_transform_overview.htm&type=5">Batch Data Transforms overview</a> · <a href="https://help.salesforce.com/s/articleView?id=data.c360_a_batch_transform_status.htm&type=5">Check the status of a data transform</a> · <a href="https://help.salesforce.com/s/articleView?id=data.c360_a_batch_transform_run.htm&type=5">Run a data transform</a></p>
+
+      <h2 id="model">3. The AI model</h2>
+      <p>The template trains a predictive model in <strong>Einstein Studio</strong> (Data Cloud's model-building tool, shown as <strong>Model Builder</strong>). It's a binary classification model that learns, from the training dataset, how a request's features relate to whether it was accepted, and outputs a <strong>Derived Score</strong> (0–100) for each scored request.</p>
+      <div class="where">
+        <span class="label">Where to check</span>
+        <p>In the <strong>Data Cloud</strong> (Data 360) app, open <strong>Model Builder</strong> (listed under the AI / models area of the app). Open the model the template created to see its status, versions, and scoring metrics.</p>
+      </div>
+      <p><strong>Looks right when:</strong> the model's status is <strong>Active</strong>. A model that stays in <em>Activating</em> usually means the training label came out all one value (every request accepted, or none) — see <a href="troubleshooting.html#activating">Troubleshooting</a>.</p>
+      <figure class="shot" data-caption="Model Builder showing the scoring model with status Active and its evaluation metrics. Active means the model can score the records the scoring transform supplies." data-src="images/ai-model.png"></figure>
+      <div class="callout note">
+        <span class="label">No public help URL for Model Builder</span>
+        Einstein Studio / Model Builder is reached through the Data Cloud app rather than a stable public help article. Use the in-app path above. For the underlying DMOs the model reads and writes, use <a href="https://help.salesforce.com/s/articleView?id=data.c360_a_data_explorer.htm&type=5">Data Explorer</a>.
+      </div>
+
+      <h2 id="app-hub">4. App Hub — the app the template generated</h2>
+      <p>Installing the template provisions an <strong>app</strong> that holds the assets it created (the data transforms, the model definition, and related metadata). <strong>App Hub</strong> is the Setup page that lists these template-generated apps and their install status.</p>
+      <div class="where">
+        <span class="label">Where to check</span>
+        <p>In Setup, go to <strong>Intelligent Apps</strong> → <strong>App Hub</strong> (<code>/lightning/setup/AppHub/home</code>). Find the app the template created. Its <strong>App Install History</strong> shows whether the install completed or failed, and when.</p>
+      </div>
+      <p><strong>Looks right when:</strong> the app shows an installed / completed status with no install errors. If the install failed, App Install History is where the error surfaces — and it's why the <a href="scoring-framework.html">Enable Asset Saving</a> option in Step 2 exists (turn it on to keep a failed install's partial assets for inspection).</p>
+      <figure class="shot" data-caption="Setup → App Hub, showing the app generated by the template and its App Install History with a completed install." data-src="images/app-hub.png"></figure>
+      <div class="callout note">
+        <span class="label">Reached from Setup, not a help URL</span>
+        App Hub is a Setup page rather than a standalone public help article. Use the Setup path above (<strong>Intelligent Apps → App Hub</strong>).
+      </div>
+
+      <h2 id="scores">5. Scores in the scoring DMO</h2>
+      <p>Once the model is Active and the scoring transform has run, the predicted score is stored in Data Cloud — not yet in your CRM.</p>
+      <div class="where">
+        <span class="label">Where to check</span>
+        <p>Back in <strong>Data Explorer</strong>, open the <code>ClinicalServiceRequestScoringData</code> DMO and confirm the <code>DerivedScore_prediction__c</code> field has values.</p>
+      </div>
+      <p><strong>Looks right when:</strong> scored rows carry a numeric <code>DerivedScore_prediction__c</code> (0–100). If this field is empty, the model hasn't scored yet — recheck that the model is Active (step 3) and the scoring transform ran (step 2).</p>
+      <p class="docref">Docs: <a href="https://help.salesforce.com/s/articleView?id=data.c360_a_data_explorer.htm&type=5">Data Explorer</a></p>
+
+      <h2 id="referral-score">6. Referral Score on the Clinical Service Request</h2>
+      <p>The last hop copies the score out of Data Cloud and onto the CRM record, using <strong>Copy Field Enrichment</strong> (Step 3). This is the value referral coordinators actually see.</p>
+      <div class="where">
+        <span class="label">Where to check</span>
+        <p>Confirm the enrichment first: in the <strong>Data Cloud</strong> (Data 360) app, in the area for acting on data, open the Copy Field Enrichment the template created and confirm its last run succeeded. Then open a scored <strong>Clinical Service Request</strong> in the CRM and look at the <strong>Referral Score</strong> field.</p>
+      </div>
+      <p><strong>Looks right when:</strong> the Referral Score on the CSR matches the <code>DerivedScore_prediction__c</code> in the scoring DMO. If the DMO has a score but the CSR doesn't, the writeback is the problem — recheck the integration user's permissions in <a href="cfe-permissions.html">Step 3</a>.</p>
+      <p class="docref">Docs: <a href="https://help.salesforce.com/s/articleView?id=data.c360_a_act_on_data.htm&type=5">Act on data in Data 360</a> (the area that includes Copy Field Enrichment)</p>
+
+      <h2>Reference docs</h2>
+      <p>The official Salesforce Help articles for the pieces above:</p>
+      <ul>
+        <li><a href="https://help.salesforce.com/s/articleView?id=data.c360_a_batch_transform_overview.htm&type=5">Batch Data Transforms overview</a></li>
+        <li><a href="https://help.salesforce.com/s/articleView?id=data.c360_a_batch_transform_status.htm&type=5">Check the status of a data transform</a></li>
+        <li><a href="https://help.salesforce.com/s/articleView?id=data.c360_a_batch_transform_run.htm&type=5">Run a data transform</a></li>
+        <li><a href="https://help.salesforce.com/s/articleView?id=data.c360_a_data_explorer.htm&type=5">Data Explorer</a></li>
+        <li><a href="https://help.salesforce.com/s/articleView?id=data.c360_a_enable_data_explorer_permissions.htm&type=5">Permissions for Data Explorer</a></li>
+        <li><a href="https://help.salesforce.com/s/articleView?id=data.c360_a_act_on_data.htm&type=5">Act on data in Data 360</a> — includes Copy Field Enrichment</li>
+      </ul>
+      <div class="callout note">
+        <span class="label">Reached in-app, no standalone help article</span>
+        <strong>Model Builder</strong> (Einstein Studio) and <strong>App Hub</strong> are reached through the Data Cloud app and Setup respectively, using the in-app paths given above, rather than a public help URL. <em>Unified Health Scoring</em> is a separate Health Cloud feature with its own documentation — it is not part of this template.
+      </div>
+
+      <div class="pager">
+        <a class="prev" href="cfe-permissions.html"><span class="dir">Previous: Step 3</span><span class="ttl">← Enable the Score Writeback</span></a>
+        <a class="next" href="troubleshooting.html"><span class="dir">Next</span><span class="ttl">Troubleshooting →</span></a>
+      </div>
+
+      <footer>Community setup guide for Predictive Analytics for Clinical Service Requests in Health Cloud. Not an official Salesforce publication.</footer>
+    </main>
+  </div>
+  <script src="assets/site.js"></script>
+</body>
+</html>
