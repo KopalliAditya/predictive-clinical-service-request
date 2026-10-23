@@ -51,18 +51,17 @@
       <p>A <strong>Batch Data Transform (BDT)</strong> is a Data Cloud job that reads one or more DMOs, derives and reshapes fields, and writes the result to another DMO on a schedule. The scoring template builds <strong>two</strong> of them, and you can see both here.</p>
       <div class="where">
         <span class="label">Where to check</span>
-        <p>In the <strong>Data Cloud</strong> (Data 360) app, open the <strong>Data Transforms</strong> tab. The two transforms the template created both appear in the list with type <em>Batch</em>. Open each one to see its last run and its status.</p>
+        <p>In the <strong>Data Cloud</strong> (Data 360) app, open the <strong>Data Transforms</strong> tab. Both transforms the template created appear in the list with type <em>Batch</em>. Open each one to see its definition and run history.</p>
       </div>
+      <figure class="shot" data-caption="The Data Transforms tab with both transforms the template created — Predictive Analytics Training BDT and Predictive Analytics Scoring BDT. Each is type Batch, status Active, with a Success last-run status." data-src="images/bdt-list.png"></figure>
 
       <h3>Training transform</h3>
       <p>Reads your <em>resolved</em> Clinical Service Requests, computes the model's features <em>and</em> the accept/not-accept label, and writes the result to the <code>ClinicalServiceRequestTrainingData</code> DMO. This is the labeled history the model learns from.</p>
-      <figure class="shot" data-caption="The training Batch Data Transform. The run history shows a successful last run and the target DMO is ClinicalServiceRequestTrainingData." data-src="images/bdt-training.png"></figure>
 
       <h3>Scoring transform</h3>
-      <p>Reads the Clinical Service Requests you want scored, computes the <em>same</em> features (no label), and — after the model runs — the predicted score lands in the <code>ClinicalServiceRequestScoringData</code> DMO.</p>
-      <figure class="shot" data-caption="The scoring Batch Data Transform, writing to ClinicalServiceRequestScoringData. Its source filter is usually broader than the training transform's." data-src="images/bdt-scoring.png"></figure>
+      <p>Reads the Clinical Service Requests you want scored, computes the <em>same</em> features, calls the model to predict each one, and writes the result — including the predicted score — to the <code>ClinicalServiceRequestScoringData</code> DMO.</p>
 
-      <p><strong>Looks right when:</strong> both transforms show a <em>successful</em> last run (not failed or never-run). If a transform hasn't run yet, you can run it manually from this tab. The <a href="scoring-framework.html#filters">custom filters</a> you set in Step 2 decide which requests each one reads.</p>
+      <p><strong>Looks right when:</strong> both transforms show a <em>Success</em> last-run status (not failed or never-run). If a transform hasn't run yet, you can run it manually from this tab. The <a href="scoring-framework.html#filters">custom filters</a> you set in Step 2 decide which requests each one reads; for a look at what each transform does internally, see <a href="how-it-works.html#bdts">How It Works</a>.</p>
       <p class="docref">Docs: <a href="https://help.salesforce.com/s/articleView?id=data.c360_a_batch_transform_overview.htm&type=5">Batch Data Transforms overview</a> · <a href="https://help.salesforce.com/s/articleView?id=data.c360_a_batch_transform_status.htm&type=5">Check the status of a data transform</a> · <a href="https://help.salesforce.com/s/articleView?id=data.c360_a_batch_transform_run.htm&type=5">Run a data transform</a></p>
 
       <h2 id="model">3. The AI model</h2>
@@ -72,7 +71,7 @@
         <p>In the <strong>Data Cloud</strong> (Data 360) app, open <strong>Model Builder</strong> (listed under the AI / models area of the app). Open the model the template created to see its status, versions, and scoring metrics.</p>
       </div>
       <p><strong>Looks right when:</strong> the model's status is <strong>Active</strong>. A model that stays in <em>Activating</em> usually means the training label came out all one value (every request accepted, or none) — see <a href="troubleshooting.html#activating">Troubleshooting</a>.</p>
-      <figure class="shot" data-caption="Model Builder showing the scoring model with status Active and its evaluation metrics. Active means the model can score the records the scoring transform supplies." data-src="images/ai-model.png"></figure>
+      <figure class="shot" data-caption="The AI Models list (Predict) showing the Clinical Service Request Priority Score model — a Custom, Binary Classification model with status Active. Active means the model can score the records the scoring transform supplies." data-src="images/ai-model.png"></figure>
       <div class="callout note">
         <span class="label">No public help URL for Model Builder</span>
         Einstein Studio / Model Builder is reached through the Data Cloud app rather than a stable public help article. Use the in-app path above. For the underlying DMOs the model reads and writes, use <a href="https://help.salesforce.com/s/articleView?id=data.c360_a_data_explorer.htm&type=5">Data Explorer</a>.
@@ -85,7 +84,7 @@
         <p>In Setup, go to <strong>Intelligent Apps</strong> → <strong>App Hub</strong> (<code>/lightning/setup/AppHub/home</code>). Find the app the template created. Its <strong>App Install History</strong> shows whether the install completed or failed, and when.</p>
       </div>
       <p><strong>Looks right when:</strong> the app shows an installed / completed status with no install errors. If the install failed, App Install History is where the error surfaces — and it's why the <a href="scoring-framework.html">Enable Asset Saving</a> option in Step 2 exists (turn it on to keep a failed install's partial assets for inspection).</p>
-      <figure class="shot" data-caption="Setup → App Hub, showing the app generated by the template and its App Install History with a completed install." data-src="images/app-hub.png"></figure>
+      <figure class="shot" data-caption="App Hub → Monitor for the Predictive Analytics app install. Every task — the data transform upserts, the ML container and setup, model training and activation, and the scoring transform — completed with a Success status." data-src="images/app-hub.png"></figure>
       <div class="callout note">
         <span class="label">Reached from Setup, not a help URL</span>
         App Hub is a Setup page rather than a standalone public help article. Use the Setup path above (<strong>Intelligent Apps → App Hub</strong>).

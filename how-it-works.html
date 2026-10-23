@@ -33,7 +33,7 @@
         <div class="node crm">CRM<br>Referral Score <span class="muted">(via CFE)</span></div>
       </div>
 
-      <h2>Batch Data Transforms (BDTs)</h2>
+      <h2 id="bdts">Batch Data Transforms (BDTs)</h2>
       <p>A <strong>Batch Data Transform</strong> is a Data Cloud pipeline that reads from one or more data model objects (DMOs), derives and reshapes fields, and writes the result to another DMO on a schedule. The scoring template (Step 2) creates <strong>two</strong> of them.</p>
 
       <h3>Training data transform</h3>
@@ -43,9 +43,11 @@
         <li>the <strong>training label</strong> — whether that request was ultimately accepted.</li>
       </ul>
       <p>It writes these labeled rows to the <code>ClinicalServiceRequestTrainingData</code> DMO. This is the history the model learns from, so it only includes requests that already have a known outcome.</p>
+      <figure class="shot" data-caption="The training transform in Data Transform Builder: it reads the Clinical Service Request DMO, applies the custom filter, joins the Diagnostic Summary and Patient Health Condition DMOs, computes the features and label, and writes the result to the training DMO (WRITE_TRAINING_DMO)." data-src="images/bdt-training-flow.png"></figure>
 
       <h3>Scoring data transform</h3>
-      <p>Reads the Clinical Service Requests you want to score, computes the <em>same</em> features (but no label, since the outcome isn't known yet), and — after the model runs — the predicted score lands in the <code>ClinicalServiceRequestScoringData</code> DMO.</p>
+      <p>Reads the Clinical Service Requests you want to score and computes the <em>same</em> features (but no label, since the outcome isn't known yet). It then calls the model to predict a score for each request — the <code>PREDICT_CSR_SCORE</code> step — and writes the result, including the predicted score, to the <code>ClinicalServiceRequestScoringData</code> DMO.</p>
+      <figure class="shot" data-caption="The scoring transform mirrors the training transform but adds a PREDICT_CSR_SCORE step that runs the trained model, then writes the scored rows to the scoring DMO (WRITE_SCORING_DMO)." data-src="images/bdt-scoring-flow.png"></figure>
 
       <p>The <a href="scoring-framework.html#filters">custom filter parameters</a> in Step 2 decide which requests each transform reads. That's why the training filter is usually narrower (resolved requests only) than the scoring filter (the open requests you want prioritized).</p>
 
@@ -54,8 +56,9 @@
       <p>Both transforms run on a schedule, so as new Clinical Service Requests arrive and old ones resolve, the training data and the scores stay current.</p>
 
       <h2>The AI model</h2>
-      <p>The template builds a predictive model in <strong>Einstein Studio</strong> (Data Cloud's model-building tool). It is a <strong>binary classification</strong> model: from the training dataset it learns the relationship between a request's features and whether it was accepted.</p>
+      <p>The template builds a predictive model in <strong>Einstein Studio</strong> (Data Cloud's model-building tool, shown as Model Builder). It is a <strong>binary classification</strong> model built with gradient-boosted decision trees (XGBoost): from the training dataset it learns the relationship between a request's features and whether it was accepted.</p>
       <p>For every request in the scoring dataset, the model outputs a <strong>Derived Score</strong> — a likelihood, expressed on a 0–100 scale, that is used to prioritize referrals. A higher score means the model considers the request more likely to be accepted.</p>
+      <figure class="shot" data-caption="The trained model's Overview in Model Builder: a Predictive, Binary Classification model built with the XGBoost algorithm, trained on the Clinical Service Request Training Data object. Use View Training Metrics for its evaluation scores." data-src="images/ai-model-detail.png"></figure>
       <ul>
         <li><strong>Train and Deploy</strong> (a Step 2 parameter, on by default) tells the framework to train the model and then activate it automatically.</li>
         <li>Once the model reaches <strong>Active</strong> status, the scoring transform can write scores. A model that never leaves <em>Activating</em> usually means the training label was all one value — see <a href="troubleshooting.html#activating">Troubleshooting</a>.</li>
