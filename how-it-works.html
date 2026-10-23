@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How Predictive Scoring Works | Predictive Analytics for Clinical Service Requests</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="how-it-works">
+  <div class="layout">
+    <main class="content">
+      <nav class="breadcrumb">
+        <a href="index.html">Predictive Analytics for Clinical Service Requests</a><span class="sep">›</span>
+        How It Works
+      </nav>
+
+      <h1>How Predictive Scoring Works</h1>
+      <p class="subtitle">What the setup builds behind the scenes — the data transforms and the AI model — and how a score reaches the Clinical Service Request.</p>
+
+      <p>The three setup steps assemble a small pipeline in Data Cloud. Your Clinical Service Request (CSR) data is shaped by two <strong>Batch Data Transforms</strong>, an <strong>AI model</strong> learns from it and scores each request, and <strong>Copy Field Enrichment</strong> copies the score back to the CRM.</p>
+
+      <div class="flow">
+        <div class="node crm">CRM<br>Clinical Service Request</div>
+        <span class="arrow">→</span>
+        <div class="node dc">Data Cloud DMOs<br><span class="muted">via the data kit (Step 1)</span></div>
+        <span class="arrow">→</span>
+        <div class="node dc">Training BDT<br><span class="muted">builds the training dataset</span></div>
+        <span class="arrow">→</span>
+        <div class="node model">AI model<br><span class="muted">trains, then scores</span></div>
+        <span class="arrow">→</span>
+        <div class="node dc">Scoring BDT → Scoring DMO<br><span class="muted">Derived Score</span></div>
+        <span class="arrow">→</span>
+        <div class="node crm">CRM<br>Referral Score <span class="muted">(via CFE)</span></div>
+      </div>
+
+      <h2>Batch Data Transforms (BDTs)</h2>
+      <p>A <strong>Batch Data Transform</strong> is a Data Cloud pipeline that reads from one or more data model objects (DMOs), derives and reshapes fields, and writes the result to another DMO on a schedule. The scoring template (Step 2) creates <strong>two</strong> of them.</p>
+
+      <h3>Training data transform</h3>
+      <p>Reads your <em>resolved</em> Clinical Service Requests — plus any linked Diagnostic Summary and Patient Health Condition data — and for each one computes:</p>
+      <ul>
+        <li>the model's <strong>features</strong> (priority, request age, type, and the diagnostic/health-condition flags and categories you turned on), and</li>
+        <li>the <strong>training label</strong> — whether that request was ultimately accepted.</li>
+      </ul>
+      <p>It writes these labeled rows to the <code>ClinicalServiceRequestTrainingData</code> DMO. This is the history the model learns from, so it only includes requests that already have a known outcome.</p>
+
+      <h3>Scoring data transform</h3>
+      <p>Reads the Clinical Service Requests you want to score, computes the <em>same</em> features (but no label, since the outcome isn't known yet), and — after the model runs — the predicted score lands in the <code>ClinicalServiceRequestScoringData</code> DMO.</p>
+
+      <p>The <a href="scoring-framework.html#filters">custom filter parameters</a> in Step 2 decide which requests each transform reads. That's why the training filter is usually narrower (resolved requests only) than the scoring filter (the open requests you want prioritized).</p>
+
+      <figure class="shot" data-caption="The two transforms have independent filters: the training BDT reads resolved requests (here Status = Manual Required, 1,638 rows) while the scoring BDT reads a broader set (Status = Manual Required OR Draft, 1,882 rows)." data-src="images/scoring-filter-split.png"></figure>
+
+      <p>Both transforms run on a schedule, so as new Clinical Service Requests arrive and old ones resolve, the training data and the scores stay current.</p>
+
+      <h2>The AI model</h2>
+      <p>The template builds a predictive model in <strong>Einstein Studio</strong> (Data Cloud's model-building tool). It is a <strong>binary classification</strong> model: from the training dataset it learns the relationship between a request's features and whether it was accepted.</p>
+      <p>For every request in the scoring dataset, the model outputs a <strong>Derived Score</strong> — a likelihood, expressed on a 0–100 scale, that is used to prioritize referrals. A higher score means the model considers the request more likely to be accepted.</p>
+      <ul>
+        <li><strong>Train and Deploy</strong> (a Step 2 parameter, on by default) tells the framework to train the model and then activate it automatically.</li>
+        <li>Once the model reaches <strong>Active</strong> status, the scoring transform can write scores. A model that never leaves <em>Activating</em> usually means the training label was all one value — see <a href="troubleshooting.html#activating">Troubleshooting</a>.</li>
+      </ul>
+
+      <div class="callout important">
+        <span class="label">What the score is — and isn't</span>
+        The Derived Score reflects the <strong>likelihood a referral is accepted</strong>, for prioritizing a queue. It is not a clinical quality or acuity score. Do not use it to triage emergency cases.
+      </div>
+
+      <h2>Where the score ends up</h2>
+      <p>The model's score lives in a Data Cloud DMO, which coordinators don't work in. <strong>Copy Field Enrichment</strong> (Step 3) copies the <code>DerivedScore_prediction__c</code> value from the scoring DMO onto the <strong>Referral Score</strong> field of the matching Clinical Service Request in the CRM, where referral coordinators can see and sort by it.</p>
+
+      <div class="pager">
+        <a class="prev" href="prerequisites.html"><span class="dir">Previous</span><span class="ttl">← Prerequisites</span></a>
+        <a class="next" href="data-kit.html"><span class="dir">Next: Step 1</span><span class="ttl">Install the Data Kit →</span></a>
+      </div>
+
+      <footer>Community setup guide for Predictive Analytics for Clinical Service Requests in Health Cloud. Not an official Salesforce publication.</footer>
+    </main>
+  </div>
+  <script src="assets/site.js"></script>
+</body>
+</html>

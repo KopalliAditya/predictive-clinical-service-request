@@ -433,6 +433,8 @@ td code { white-space: nowrap; }
 .flow .node.dc { border-color: #bfe4c9; background: var(--sf-green-bg); }
 .flow .node.model { border-color: #fcd9b6; background: var(--sf-orange-bg); }
 .flow .arrow { color: var(--sf-text-weakest); font-size: 18px; }
+.muted { color: var(--sf-text-weakest); font-weight: 400; }
+.flow .node .muted { display: block; font-size: 11px; margin-top: 2px; }
 
 /* Figures / screenshots */
 figure.shot {

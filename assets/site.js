@@ -5,6 +5,7 @@ const NAV = [
   { group: "Get Started", items: [
     { id: "index",             href: "index.html",             label: "Overview" },
     { id: "prerequisites",     href: "prerequisites.html",     label: "Prerequisites" },
+    { id: "how-it-works",      href: "how-it-works.html",      label: "How It Works" },
   ]},
   { group: "Set Up Scoring", items: [
     { id: "data-kit",          href: "data-kit.html",          label: "Install the Data Kit",            step: 1 },

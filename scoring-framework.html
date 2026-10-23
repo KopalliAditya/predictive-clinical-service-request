@@ -68,8 +68,8 @@
         <p>Include the Patient Health Condition Severity as a feature. Requires Patient Health Condition data to be mapped; when absent the feature is simply empty and has no effect on the install.</p>
       </div>
 
-      <h2>Custom filters</h2>
-      <p>The filter parameters are optional SQL expressions applied to the Clinical Service Request source. Leave them blank to score all Clinical Service Requests.</p>
+      <h2 id="filters">Custom filters</h2>
+      <p>The filter parameters are optional SQL expressions applied to the Clinical Service Request source. They decide which requests the training and scoring <a href="how-it-works.html">data transforms</a> read. Leave them blank to score all Clinical Service Requests.</p>
 
       <div class="param">
         <div class="pname">Custom Filter logic</div>
@@ -93,11 +93,23 @@
 
       <figure class="shot" data-caption="Separate training and scoring filters: training on Status = Manual Required (1,638 records) and a broader scoring filter, Status = Manual Required OR Draft (1,882 records), so the model trains on resolved requests but scores a wider set." data-src="images/scoring-filter-split.png"></figure>
 
+      <h2>Asset saving</h2>
+      <p>The wizard's <strong>Enable Asset Saving</strong> step controls what happens to the things the template builds if the install fails partway through.</p>
+
+      <div class="param">
+        <div class="pname">Save Assets</div>
+        <div class="pmeta">Optional &nbsp;·&nbsp; Default: <span class="default">Off</span></div>
+        <p>"The assets" are everything the template creates in the app it generates — the two <a href="how-it-works.html">Batch Data Transforms</a>, the model definition, and the related metadata. "The installation" is this template install itself.</p>
+        <p>When <strong>Off</strong> (the default), a failed install is rolled back and leaves nothing behind. When <strong>On</strong>, the assets the install had already created are kept in the app so you can inspect exactly how far it got.</p>
+        <p>Leave it <strong>Off</strong> for a normal install. Turn it <strong>On</strong> only when you're troubleshooting an install that keeps failing — often at Salesforce support's request. It has no effect on a successful install.</p>
+      </div>
+      <figure class="shot" data-caption="The Enable Asset Saving step. Save Assets is Off by default; turn it On only to keep the partially-built assets (the data transforms, model, and metadata) for troubleshooting a failed install." data-src="images/scoring-asset-saving.png"></figure>
+
       <h2>Parameters you don't set</h2>
       <p>Two parameters are managed by the framework — leave them at their defaults: <strong>Train and Deploy</strong> (defaults to on) and an internal test flag used only by functional tests.</p>
 
       <h2>Finish and verify</h2>
-      <div class="step"><div class="num">4</div><div class="body"><p>Complete the wizard. The template installs the model definition and data transforms, then begins training.</p></div></div>
+      <div class="step"><div class="num">4</div><div class="body"><p>Complete the wizard. The template installs the model definition and the two data transforms (the training and scoring <a href="how-it-works.html">BDTs</a>), then begins training.</p></div></div>
       <div class="step"><div class="num">5</div><div class="body">
         <p>Confirm the model reaches <strong>Active</strong> status. A model that stays in <em>Activating</em> can mean the training label is all one value — see <a href="troubleshooting.html#activating">Troubleshooting</a>.</p>
       </div></div>
